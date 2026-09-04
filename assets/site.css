@@ -670,7 +670,9 @@ body.paused .float::before{animation-play-state:paused}
   transform:translateZ(0);will-change:transform;
 }
 .stage.video-ready .vid{opacity:1}
-.stage.video-ready .scene{opacity:.16;transition:opacity .9s var(--ease)}
+/* once the footage is in, the drawn scene steps out of the way completely:
+   at any opacity it would double up the light and the shelter already in shot */
+.stage.video-ready .scene{opacity:0;transition:opacity .9s var(--ease)}
 .poster{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transition:opacity .8s var(--ease)}
 .stage.poster-ready .poster{opacity:1}
 .stage.video-ready .poster{opacity:0}
@@ -716,8 +718,11 @@ body.paused .float::before{animation-play-state:paused}
   opacity:calc(.25 + .75*var(--k,1));
   background:radial-gradient(ellipse 76% 60% at 50% 50%,rgba(5,8,18,.70) 0%,rgba(5,8,18,.46) 46%,rgba(5,8,18,0) 76%);
 }
-.band--2::before{background:radial-gradient(ellipse 80% 58% at 50% 50%,rgba(5,8,18,.66) 0%,rgba(5,8,18,.44) 46%,rgba(5,8,18,0) 76%)}
-.band--3::before{background:radial-gradient(ellipse 82% 64% at 50% 50%,rgba(5,8,18,.72) 0%,rgba(5,8,18,.48) 46%,rgba(5,8,18,0) 76%)}
+/* Peak alphas tuned against each band's worst frame in the real footage, not
+   its average one. Band 2 sits over the brightest cloud moment and band 3 over
+   the lit horizon, so both run deeper than the opening beat. */
+.band--2::before{background:radial-gradient(ellipse 80% 58% at 50% 50%,rgba(5,8,18,.76) 0%,rgba(5,8,18,.52) 46%,rgba(5,8,18,0) 76%)}
+.band--3::before{background:radial-gradient(ellipse 82% 64% at 50% 50%,rgba(5,8,18,.80) 0%,rgba(5,8,18,.56) 46%,rgba(5,8,18,0) 76%)}
 .band .eyebrow{
   display:inline-flex;align-items:center;gap:9px;
   font-family:var(--mono);font-size:12px;letter-spacing:.2em;text-transform:uppercase;
@@ -801,11 +806,13 @@ body.paused .float::before{animation-play-state:paused}
   .band .w,.band .sub,.band .row{opacity:1!important;transform:none!important}
   .band .row{margin-top:28px}
   .cue,.ring{display:none}
-  /* the journey's moving parts belong to the scroll. The static hero keeps
-     the night sky and the ground and drops the rest, so nothing sits behind
-     the words. */
+  /* The static hero is a composed layout, not an apology: it gets the real
+     resting frame of the journey as a still. One small jpg, never the video.
+     The drawn scene stays underneath as the backstop if that jpg fails. */
+  .stage{background-image:url('hero-ending.jpg');background-size:cover;background-position:50% 42%}
   .scene .only-scrub{display:none}
-  .scrim{background:radial-gradient(ellipse 130% 100% at 50% 40%,rgba(8,12,24,0) 30%,rgba(8,12,24,.55) 100%)}
+  .scene{opacity:0}
+  .scrim{background:linear-gradient(180deg,rgba(8,12,24,.62) 0%,rgba(8,12,24,.42) 45%,rgba(8,12,24,.78) 100%)}
 }
 
 /* the page-hero used by Services, About, Contact */

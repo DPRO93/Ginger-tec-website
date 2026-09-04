@@ -22,15 +22,15 @@
   var bandEls  = [].slice.call(hero.querySelectorAll('.band'));
 
   /* THE FOOTAGE SWITCH.
-     While this is false the hero runs entirely on the drawn scene below and
-     asks the network for nothing, so no failed requests and a clean console.
-     When assets/hero-scrub.mp4 and assets/hero-poster.jpg are added, flip this
-     to true and set VIDEO_BYTES to the real file size. Nothing else changes. */
-  var HAS_FOOTAGE = false;
+     False makes the hero run entirely on the drawn scene below and ask the
+     network for nothing. True loads the generated footage over it. The drawn
+     scene stays either way, because it is what phones and reduced-motion
+     visitors get, and what carries the page if the video never arrives. */
+  var HAS_FOOTAGE = true;
 
   var VIDEO_URL   = 'assets/hero-scrub.mp4';
   var POSTER_URL  = 'assets/hero-poster.jpg';
-  var VIDEO_BYTES = 6500000;   // fallback when Content-Length is missing
+  var VIDEO_BYTES = 2649232;   // fallback when Content-Length is missing
 
   /* --------------------------------------------------------- the band map */
   /* Ranges are scroll progress through the pinned hero.
