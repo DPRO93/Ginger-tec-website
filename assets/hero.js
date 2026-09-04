@@ -21,6 +21,13 @@
   var sceneEl  = hero.querySelector('.scene');
   var bandEls  = [].slice.call(hero.querySelectorAll('.band'));
 
+  /* THE FOOTAGE SWITCH.
+     While this is false the hero runs entirely on the drawn scene below and
+     asks the network for nothing, so no failed requests and a clean console.
+     When assets/hero-scrub.mp4 and assets/hero-poster.jpg are added, flip this
+     to true and set VIDEO_BYTES to the real file size. Nothing else changes. */
+  var HAS_FOOTAGE = false;
+
   var VIDEO_URL   = 'assets/hero-scrub.mp4';
   var POSTER_URL  = 'assets/hero-poster.jpg';
   var VIDEO_BYTES = 6500000;   // fallback when Content-Length is missing
@@ -278,6 +285,14 @@
     if (initHeroOnce.done) return;
     initHeroOnce.done = true;
 
+    window.requestAnimationFrame(loadRamp);
+
+    if (!HAS_FOOTAGE) {
+      // nothing to fetch: the drawn scene is the hero, and it is already here
+      failVideo();
+      return;
+    }
+
     // the poster wins the bandwidth race by design: paint it, then fetch
     var img = new Image();
     img.onload = function () {
@@ -290,8 +305,6 @@
     img.onerror = startBlobFetch;
     img.src = POSTER_URL;
     window.setTimeout(startBlobFetch, 4000);   // a hung poster never blocks forever
-
-    window.requestAnimationFrame(loadRamp);
   }
 
   function loadHeroBlob() {
