@@ -30,7 +30,7 @@
 
   var VIDEO_URL   = 'assets/hero-scrub.mp4';
   var POSTER_URL  = 'assets/hero-poster.jpg';
-  var VIDEO_BYTES = 2649232;   // fallback when Content-Length is missing
+  var VIDEO_BYTES = 1251936;   // fallback when Content-Length is missing
 
   /* --------------------------------------------------------- the band map */
   /* Ranges are scroll progress through the pinned hero.
