@@ -25,11 +25,11 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<!-- Fonts load without blocking the first paint. On a slow mobile connection a
-     blocking font request means seconds of blank screen; this way the page
-     paints immediately and the faces swap in when they arrive. -->
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap"></noscript>
+<!-- The fonts now live on this site, so they arrive down the connection the
+     browser already has open. Preloading the two that carry the hero means
+     they start downloading alongside the stylesheet rather than after it. -->
+<link rel="preload" as="font" type="font/woff2" href="assets/fonts/sora-var.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="assets/fonts/plex-sans-var.woff2" crossorigin>
 <link rel="stylesheet" href="assets/site.css">
 
 <!-- Structured data. This is how Google understands that Ginger Tec is a real
