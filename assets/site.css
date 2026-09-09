@@ -218,6 +218,23 @@ main{margin-top:-74px}
 
 .hdr__cta{display:flex;align-items:center;gap:10px;margin-left:8px}
 
+/* On a phone the full contact buttons collapse into the menu, which buries the
+   phone number two taps deep. For an emergency callout that is the wrong thing
+   to hide, so the call button stays out on the bar at every width. */
+.hdr__call{
+  display:none;margin-left:auto;width:44px;height:44px;border-radius:11px;
+  align-items:center;justify-content:center;flex:0 0 auto;
+  background:var(--accent);color:#fff;text-decoration:none;
+  box-shadow:0 8px 20px -10px rgba(26,86,219,.8);
+  transition:transform .35s var(--ease),background-color .3s var(--ease);
+}
+.hdr__call:hover{background:var(--accent-hover);transform:translateY(-1px)}
+.hdr__call svg{width:20px;height:20px}
+@media (max-width:980px){
+  .hdr__call{display:inline-flex}
+  .burger{margin-left:10px}
+}
+
 .burger{
   display:none;margin-left:auto;width:44px;height:44px;border:1px solid var(--line);
   background:var(--panel);border-radius:11px;align-items:center;justify-content:center;
@@ -487,6 +504,33 @@ main{margin-top:-74px}
   background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent-muted);
   padding:7px 12px;border-radius:999px;
 }
+
+/* A reader convinced by one service should not have to scroll to the bottom of
+   the page to act on it. Quiet links, not seven loud buttons. */
+.svc__act{display:flex;flex-wrap:wrap;gap:18px;margin-top:24px;align-items:center}
+.svc__act-link{
+  position:relative;font-weight:600;font-size:15.5px;color:var(--accent);
+  text-decoration:none;display:inline-flex;align-items:center;gap:7px;
+  transition:color .3s var(--ease);
+}
+.svc__act-link::after{
+  content:"";position:absolute;left:0;right:0;bottom:-3px;height:1.5px;
+  background:currentColor;border-radius:2px;
+  transform:scaleX(0);transform-origin:left;
+  transition:transform .4s var(--ease);
+}
+.svc__act-link:hover::after{transform:scaleX(1)}
+.svc__act-link::before{
+  content:"";width:16px;height:16px;flex:0 0 auto;
+  background:currentColor;
+  -webkit-mask:var(--ico) center/contain no-repeat;mask:var(--ico) center/contain no-repeat;
+  --ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14M13 6l6 6-6 6'/%3E%3C/svg%3E");
+}
+.svc__act-link--wa{color:#167f3e}
+.svc__act-link--wa::before{
+  --ico:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='black'%3E%3Cpath d='M12 2a10 10 0 0 0-8.6 15L2 22l5.2-1.4A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3.1.8.8-3-.2-.3A8.2 8.2 0 1 1 12 20.2z'/%3E%3C/svg%3E");
+}
+@media (pointer:coarse){.svc__act-link{min-height:44px}}
 /* a technical plate, not a blown up icon: blueprint grid, corner ticks,
    a mono label. These panels hold the place of the photographs to come. */
 .svc__art{
