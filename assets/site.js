@@ -52,7 +52,7 @@
       });
     }
     // a widened window leaves no drawer hanging open
-    window.matchMedia('(min-width: 981px)').addEventListener('change', function (e) {
+    window.matchMedia('(min-width: 1141px)').addEventListener('change', function (e) {
       if (e.matches) {
         hdr.classList.remove('open');
         burger.setAttribute('aria-expanded', 'false');
