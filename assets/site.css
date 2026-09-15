@@ -536,10 +536,10 @@ main{margin-top:-74px}
 /* ---------- Detailed service rows (Services page) ---------- */
 .svc{display:grid;gap:38px;grid-template-columns:.9fr 1.1fr;align-items:center;padding-block:clamp(38px,5vw,56px);border-top:1px solid var(--line)}
 .svc:first-of-type{border-top:0}
-.svc:nth-child(even) .svc__art{order:-1}
+.svc:nth-child(even) > div:last-child{order:-1}
 @media (max-width:860px){
   .svc{grid-template-columns:1fr;gap:24px}
-  .svc:nth-child(even) .svc__art{order:0}
+  .svc:nth-child(even) > div:last-child{order:0}
 }
 .svc__n{font-family:var(--mono);font-size:12.5px;letter-spacing:.16em;color:var(--accent);margin-bottom:12px;display:block}
 /* each service is a top level topic on this page, so these are h2 */
@@ -1317,3 +1317,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 /* small mono labels: never below 12px */
 .proj__illus,.sol__illus,.cg__k,.sol__psb dt,.feat__art figcaption,.connect-band__tag,.trust__item h3{font-size:12px}
 .svc__cap{font-size:12px}
+
+/* real installation photos under a service image */
+.svc__gal{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.svc__gal img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:12px;display:block;border:1px solid var(--line)}

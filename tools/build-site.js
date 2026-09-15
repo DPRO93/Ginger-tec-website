@@ -648,7 +648,10 @@ pages.push({
             <a class="svc__act-link svc__act-link--wa" href="${WA_URL}?text=${encodeURIComponent('Hi Ginger Tec, I would like to ask about ' + s.name)}" target="_blank" rel="noopener">${I.wa} Ask on WhatsApp</a>
           </div>
         </div>
-        <div class="svc__art"><img class="svc__img" src="${s.image}" alt="${esc(s.alt)}" loading="lazy" width="1200" height="896"><span class="svc__cap">${s.short}</span></div>
+        <div>
+          <div class="svc__art"><img class="svc__img" src="${s.image}" alt="${esc(s.alt)}" loading="lazy" width="1200" height="896"><span class="svc__cap">${s.short}</span></div>
+          ${s.gallery ? `<div class="svc__gal">${s.gallery.map((g) => `<img src="${g.image}" alt="${esc(g.alt)}" loading="lazy" width="600" height="450">`).join('')}</div>` : ''}
+        </div>
       </article>`).join('\n      ')}
     </div>
   </section>

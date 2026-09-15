@@ -1,18 +1,30 @@
 [
   { "id": "networking", "name": "IT & Networking", "short": "Networking",
-    "image": "assets/svc/network.jpg", "alt": "A network cabinet with patch panel, switches and neatly routed blue and grey cables",
+    "image": "assets/photos/work/network-rack.jpg", "alt": "A wall-mounted open network rack with a bundle of grey Ethernet cables being pulled in during an installation",
+    "gallery": [
+      { "image": "assets/photos/work/network-wall-plate.jpg", "alt": "A wall plate with five numbered network ports" },
+      { "image": "assets/photos/work/network-office-wiring.jpg", "alt": "Network cables pulled to new outlet boxes along a half-built office partition" }
+    ],
     "lede": "Wired and wireless networks that stay up. We design, cable, configure and document, so the next person can find the fault as fast as we can.",
     "items": ["LAN installation", "WAN installation", "Wi-Fi installation", "Router configuration", "Switch configuration", "Structured cabling", "Network troubleshooting", "Network maintenance", "Server & network setup"] },
   { "id": "cctv", "name": "CCTV & Security", "short": "CCTV",
-    "image": "assets/svc/cctv.jpg", "alt": "A dome security camera mounted under the eaves of a building at dusk",
+    "image": "assets/photos/work/cctv-monitor.jpg", "alt": "A wall-mounted screen showing sixteen camera views from a Hikvision recorder, with the recorder in a locked cabinet above it",
+    "gallery": [
+      { "image": "assets/photos/work/cctv-pole-camera.jpg", "alt": "A bullet camera mounted at the top of a steel pole against a clear sky" },
+      { "image": "assets/photos/work/cctv-dome-wiring.jpg", "alt": "A technician connecting the cable of a dome camera at ceiling height" }
+    ],
     "lede": "Cameras placed where they actually see, recorders sized for the days you need, and a phone app that works from anywhere.",
     "items": ["CCTV installation", "IP cameras", "NVR/DVR", "Remote monitoring", "Camera configuration", "Security system maintenance"] },
   { "id": "starlink", "name": "Starlink & Connectivity", "short": "Starlink",
-    "image": "assets/svc/starlink.jpg", "alt": "A flat satellite internet panel on a pole against a dusk sky",
+    "image": "assets/photos/work/starlink-rooftop.jpg", "alt": "A Starlink dish on a pole mount at the edge of a flat roof, looking out over trees and houses",
+    "gallery": [
+      { "image": "assets/photos/work/starlink-house.jpg", "alt": "A Starlink dish mounted on a pole above the roof of a house, with the cable run down the wall" },
+      { "image": "assets/photos/work/starlink-kit.jpg", "alt": "A Starlink kit in its box: dish, router, cable and power supply" }
+    ],
     "lede": "Internet for the places the cable never reached. We supply, mount, power and set up, then stay on call if anything drops.",
     "items": ["Starlink installation", "Starlink configuration", "Wi-Fi optimisation", "Network optimisation", "Internet troubleshooting", "Connectivity consulting"] },
   { "id": "managed-it", "name": "Managed IT Services", "short": "IT Support",
-    "image": "assets/svc/managed.jpg", "alt": "Monitors on desks in an office at dusk beside a server tower",
+    "image": "assets/photos/work/pc-hardware-repair.jpg", "alt": "Two desktop computers opened on a bench for repair, with the power supply and drive bays visible",
     "lede": "Your IT department without hiring one. Monthly, part-time, or when something breaks, with a support line that is answered.",
     "items": ["Computer support", "Hardware maintenance", "Software troubleshooting", "Network support", "IT consulting", "Remote support", "Preventive maintenance"] },
   { "id": "software", "name": "Software & Digital Solutions", "short": "Software",

@@ -48,7 +48,7 @@
   },
   {
     "id": "homes", "name": "Homes", "tile": "Internet, Wi-Fi, cameras",
-    "image": "assets/photos/home-internet.jpg", "alt": "A technician mounting a dish on a house while the homeowner watches",
+    "image": "assets/photos/work/starlink-house.jpg", "alt": "A Starlink dish mounted above the roof of a house",
     "headline": "Internet in every room, and cameras you can check from work.",
     "problem": "Wi-Fi that dies in the back bedroom, and no idea who is at the gate.",
     "solution": ["Starlink & internet", "Home Wi-Fi", "Cameras", "Computer repair"],
