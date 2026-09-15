@@ -1,0 +1,26 @@
+{
+  "_readme": "Business facts used on every page. Edit here, then run: node tools/build-site.js",
+  "name": "Ginger Tec Solutions",
+  "tagline": "Technology That Works. Built for Zambia.",
+  "url": "https://gingertecsolutions.store/",
+  "marketplaceUrl": "https://connect.gingertecsolutions.store",
+  "phone": "+260 571 496 842",
+  "phoneRaw": "+260571496842",
+  "whatsapp": "+260 960 884 708",
+  "whatsappUrl": "https://wa.me/260960884708",
+  "email": "dannykamalondo@gmail.com",
+  "location": "Solwezi District, North-Western Province, Zambia",
+  "hours": { "support": "Support line: 24 hours, 7 days", "office": "Office enquiries: Monday to Saturday" },
+  "social": {
+    "_readme": "Add real profile URLs here and they appear as footer icons. Leave empty to hide.",
+    "facebook": "",
+    "linkedin": "",
+    "instagram": "",
+    "tiktok": ""
+  },
+  "claims": {
+    "_readme": "Only claims the owner can stand behind. yearsOperating came from the owner's original copy; set to null to remove it everywhere.",
+    "yearsOperating": 5,
+    "supportHours": "24/7"
+  }
+}

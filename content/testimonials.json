@@ -1,0 +1,7 @@
+{
+  "_readme": "PLACEHOLDERS. Replace only with real, permitted customer quotes, and set placeholder to false when real. Never invent a name.",
+  "testimonials": [
+    { "placeholder": true, "quote": "Space reserved for a customer's words about a network or CCTV installation.", "who": "Customer name and business, with permission" },
+    { "placeholder": true, "quote": "Space reserved for a customer's words about support, response time or a Starlink setup.", "who": "Customer name and business, with permission" }
+  ]
+}

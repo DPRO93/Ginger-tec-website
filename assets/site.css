@@ -1266,3 +1266,54 @@ a.cg:hover{transform:translateY(-3px);border-color:var(--accent-muted)}
 }
 /* the band's headline is now a sentence, not a two-word name */
 .connect-band h2{font-size:clamp(32px,4.8vw,58px);max-width:16ch}
+
+/* ---------- audit upgrade, 2026-09-15 ---------- */
+/* marketplace categories are links into the app */
+.connect-band__grid--links a{
+  display:flex;align-items:center;gap:10px;color:inherit;text-decoration:none;width:100%;height:100%;
+}
+.connect-band__grid--links li{padding:0}
+.connect-band__grid--links li a{padding:14px 16px;border-radius:inherit}
+.connect-band__grid--links li:hover{border-color:rgba(199,215,247,.5)}
+
+/* solutions: problem / what we put in / what changes */
+.sol__head{font-weight:600;color:var(--text-primary);font-size:17px;margin-bottom:12px}
+.sol__psb{margin:0;display:grid;gap:10px 14px;grid-template-columns:1fr}
+@media (min-width:560px){.sol__psb{grid-template-columns:auto 1fr}}
+.sol__psb dt{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);padding-top:5px;white-space:nowrap}
+.sol__psb dd{margin:0}
+.sol__psb dd ul{margin:0;display:flex;flex-wrap:wrap;gap:6px}
+.sol__psb dd ul.sol__ben{display:grid;gap:6px}
+.sol__psb dd ul.sol__ben li{background:none;padding:0;font-size:15px;color:var(--text-primary);display:flex;gap:8px}
+.sol__psb dd ul.sol__ben li::before{content:"\2713";color:var(--accent);font-weight:700}
+.sol__illus{
+  position:absolute;top:12px;left:12px;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  padding:5px 9px;border-radius:6px;background:rgba(11,18,32,.82);color:#e9eefa;border:1px solid rgba(233,238,250,.2);
+}
+.sol .btn{margin-top:20px}
+
+/* the form's two ways out */
+.frow--btns{grid-template-columns:1fr;gap:10px;margin-top:4px}
+@media (min-width:640px){.frow--btns{grid-template-columns:1fr 1fr}}
+.frow--btns .btn{width:100%;justify-content:center}
+
+/* a real testimonial drops the dashed "placeholder" look */
+.testi--real{border-style:solid;color:var(--text-primary)}
+.testi--real p{font-size:16.5px}
+
+/* keyboard users can always see where they are */
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{
+  outline:3px solid var(--accent);outline-offset:3px;border-radius:6px;
+}
+.sec--deep a:focus-visible,.sec--deep button:focus-visible,.hero2 a:focus-visible,.connect-band a:focus-visible{outline-color:#9db9f5}
+
+/* tap targets: 44px minimum on phones, the whole row for footer links */
+@media (max-width:1140px){
+  .burger{width:44px;height:44px;min-width:44px}
+  .brand{min-height:44px;align-items:center}
+}
+.ftr li a{display:inline-flex;align-items:center;min-height:44px;padding-block:4px}
+.ftr__brand{min-height:44px;align-items:center}
+/* small mono labels: never below 12px */
+.proj__illus,.sol__illus,.cg__k,.sol__psb dt,.feat__art figcaption,.connect-band__tag,.trust__item h3{font-size:12px}
+.svc__cap{font-size:12px}

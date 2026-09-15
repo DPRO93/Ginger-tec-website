@@ -1,16 +1,24 @@
-/* Builds the ten pages of gingertecsolutions.store from one shared shell.
-   Output is plain HTML in the repo; this script is a tool, not a dependency. */
+/* Builds every page of gingertecsolutions.store from the content files in
+   /content and the shared shell below. Run: node tools/build-site.js
+   Output is plain HTML in the site root. No packages needed. */
 const fs = require('fs');
 const path = require('path');
 
-const OUT = path.join(__dirname, '..');
-const BASE = 'https://gingertecsolutions.store/';
-const APP = 'https://connect.gingertecsolutions.store';
-const PHONE = '+260 571 496 842', PHONE_RAW = '+260571496842';
-const WA = '+260 960 884 708', WA_URL = 'https://wa.me/260960884708';
-const EMAIL = 'dannykamalondo@gmail.com';
-const NAME = 'Ginger Tec Solutions';
-const TAG = 'Technology That Works. Built for Zambia.';
+const ROOT = path.join(__dirname, '..');
+const read = (f) => JSON.parse(fs.readFileSync(path.join(ROOT, 'content', f), 'utf8'));
+
+const SITE = read('site.json');
+const SERVICES = read('services.json');
+const PROJECTS = read('projects.json').projects;
+const INDUSTRIES = read('industries.json');
+const TESTIMONIALS = read('testimonials.json').testimonials;
+
+const BASE = SITE.url, APP = SITE.marketplaceUrl, NAME = SITE.name, TAG = SITE.tagline;
+const PHONE = SITE.phone, PHONE_RAW = SITE.phoneRaw, WA = SITE.whatsapp, WA_URL = SITE.whatsappUrl, EMAIL = SITE.email;
+const YEARS = SITE.claims && SITE.claims.yearsOperating;
+
+const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const slug = (s) => s.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
 // ---------------------------------------------------------------- icons
 const I = {
@@ -19,25 +27,27 @@ const I = {
   mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4.5" width="19" height="15" rx="2.5"></rect><path d="M3 7l9 6 9-6"></path></svg>',
   pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10.5c0 5.5-8 12-8 12s-8-6.5-8-12a8 8 0 0 1 16 0z"></path><circle cx="12" cy="10.2" r="2.8"></circle></svg>',
   clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"></circle><path d="M12 7v5l3.5 2"></path></svg>',
-  map: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"></path><path d="M9 4v14M15 6v14"></path></svg>',
   bolt: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z"></path></svg>',
   coin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"></circle><path d="M12 6.5v11M9 9.5a3 3 0 0 1 3-1.5c1.7 0 3 .9 3 2s-1.3 2-3 2-3 .9-3 2 1.3 2 3 2a3 3 0 0 0 3-1.5"></path></svg>',
   wrench: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0 5 5l-9.6 9.6a2.1 2.1 0 0 1-3-3l9.6-9.6z"></path><path d="M14.7 6.3a4 4 0 1 1 5 5"></path></svg>',
   arrow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>',
   connect: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v4M12 18v4M2 12h4M18 12h4M4.9 4.9l2.8 2.8M16.3 16.3l2.8 2.8M19.1 4.9l-2.8 2.8M7.7 16.3l-2.8 2.8"></path></svg>',
+  facebook: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13.5 22v-8h2.7l.4-3.2h-3.1V8.8c0-.9.3-1.6 1.6-1.6h1.7V4.4c-.3 0-1.3-.1-2.4-.1-2.4 0-4 1.5-4 4.1v2.4H7.6V14h2.8v8z"></path></svg>',
+  linkedin: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.5 8.5H3V21h3.5zM4.8 3a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM21 13.3c0-3.4-1.8-5-4.3-5-2 0-2.9 1.1-3.4 1.9V8.5H9.9V21h3.4v-6.6c0-1.8.3-3.5 2.5-3.5 2.1 0 2.1 2 2.1 3.6V21H21z"></path></svg>',
+  instagram: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.3" cy="6.7" r="1" fill="currentColor" stroke="none"></circle></svg>',
+  tiktok: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.5 3c.3 2.4 1.7 3.8 4 4v3.2c-1.5 0-2.9-.5-4-1.3v6.1a5.8 5.8 0 1 1-5-5.7v3.3a2.6 2.6 0 1 0 1.8 2.5V3z"></path></svg>',
 };
-const MARK = `<svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="currentColor"></rect><g fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round"><path d="M6.5 10.5a13 13 0 0 1 19 0"></path><path d="M10.5 15.5a8 8 0 0 1 11 0"></path><path d="M14 20.5a3.4 3.4 0 0 1 4 0"></path></g><circle cx="16" cy="25.5" r="2.1" fill="#fff"></circle></svg>`;
-const FAVICON = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231a56db'/%3E%3Cg fill='none' stroke='white' stroke-width='2.1' stroke-linecap='round'%3E%3Cpath d='M6.5 10.5a13 13 0 0 1 19 0'/%3E%3Cpath d='M10.5 15.5a8 8 0 0 1 11 0'/%3E%3Cpath d='M14 20.5a3.4 3.4 0 0 1 4 0'/%3E%3C/g%3E%3Ccircle cx='16' cy='25.5' r='2.1' fill='white'/%3E%3C/svg%3E`;
+const MARK = '<svg class="brand__mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="currentColor"></rect><g fill="none" stroke="#fff" stroke-width="2.1" stroke-linecap="round"><path d="M6.5 10.5a13 13 0 0 1 19 0"></path><path d="M10.5 15.5a8 8 0 0 1 11 0"></path><path d="M14 20.5a3.4 3.4 0 0 1 4 0"></path></g><circle cx="16" cy="25.5" r="2.1" fill="#fff"></circle></svg>';
+const FAVICON = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231a56db'/%3E%3Cg fill='none' stroke='white' stroke-width='2.1' stroke-linecap='round'%3E%3Cpath d='M6.5 10.5a13 13 0 0 1 19 0'/%3E%3Cpath d='M10.5 15.5a8 8 0 0 1 11 0'/%3E%3Cpath d='M14 20.5a3.4 3.4 0 0 1 4 0'/%3E%3C/g%3E%3Ccircle cx='16' cy='25.5' r='2.1' fill='white'/%3E%3C/svg%3E";
 
 const NAV = [
   ['index.html', 'Home'], ['services.html', 'Services'], ['solutions.html', 'Solutions'],
-  ['projects.html', 'Projects'], ['about.html', 'About Us'], ['marketplace.html', 'Marketplace'], ['contact.html', 'Contact'],
+  ['projects.html', 'Projects'], ['about.html', 'About'], ['marketplace.html', 'Marketplace'], ['contact.html', 'Contact'],
 ];
 
-// ---------------------------------------------------------------- pieces
-const btnQuote = (cls = 'btn btn--primary') => `<a class="${cls}" href="contact.html#assessment">Get a free quote</a>`;
+// ---------------------------------------------------------------- buttons & blocks
+const btnQuote = (cls = 'btn btn--primary', label = 'Get a free quote') => `<a class="${cls}" href="contact.html#assessment">${label}</a>`;
 const btnWa = (label = 'Chat on WhatsApp', cls = 'btn btn--wa') => `<a class="${cls}" href="${WA_URL}" target="_blank" rel="noopener">${I.wa}${label}</a>`;
-const btnCall = (cls = 'btn btn--ghost') => `<a class="${cls}" href="tel:${PHONE_RAW}">${I.phone}Call ${PHONE}</a>`;
 
 const cta = (h = 'Ready to get started?', p = 'Tell us what you need. We will give you a straight answer and a clear price.') => `
   <section class="sec cta">
@@ -52,36 +62,34 @@ const cta = (h = 'Ready to get started?', p = 'Tell us what you need. We will gi
     </div>
   </section>`;
 
-// the free assessment form, used on the home and contact pages
+const SERVICE_OPTIONS = ['Networking', 'CCTV', 'Starlink', 'IT Support', 'Computer Maintenance', 'Software', 'Website', 'Training', 'Other'];
+
+// The quote / free-assessment form. One definition, used on home and contact.
 const assessForm = (id) => `
-          <form id="${id}" class="enquiry" data-subject="Free technology assessment request" novalidate>
+          <form id="${id}" class="enquiry" data-subject="Free quote request" novalidate>
             <div class="frow">
               <label class="field"><span>Name<i class="req" aria-hidden="true">*</i></span>
                 <input type="text" name="name" autocomplete="name" placeholder="Your full name" required></label>
-              <label class="field"><span>Phone / WhatsApp<i class="req" aria-hidden="true">*</i></span>
+              <label class="field"><span>Phone<i class="req" aria-hidden="true">*</i></span>
                 <input type="tel" name="phone" autocomplete="tel" inputmode="tel" placeholder="+260 ..." required></label>
             </div>
             <div class="frow">
+              <label class="field"><span>WhatsApp</span>
+                <input type="tel" name="whatsapp" inputmode="tel" placeholder="Same as phone, or another number"></label>
               <label class="field"><span>Email</span>
                 <input type="email" name="email" autocomplete="email" placeholder="you@example.com"></label>
+            </div>
+            <div class="frow">
               <label class="field"><span>Business / Organisation</span>
                 <input type="text" name="organisation" autocomplete="organization" placeholder="Company, school, NGO, or 'home'"></label>
-            </div>
-            <div class="frow frow--3">
               <label class="field"><span>Location</span>
                 <input type="text" name="location" placeholder="Area or town"></label>
-              <label class="field"><span>Service needed</span>
+            </div>
+            <div class="frow frow--3">
+              <label class="field"><span>Service required</span>
                 <select name="service">
                   <option value="">Not sure yet</option>
-                  <option>Networking (LAN, Wi-Fi, cabling)</option>
-                  <option>CCTV &amp; security</option>
-                  <option>Starlink &amp; connectivity</option>
-                  <option>Managed IT services</option>
-                  <option>Software &amp; digital solutions</option>
-                  <option>Website development</option>
-                  <option>IT training</option>
-                  <option>Government e-services help</option>
-                  <option>Something else</option>
+                  ${SERVICE_OPTIONS.map((o) => `<option>${o}</option>`).join('')}
                 </select></label>
               <label class="field"><span>Budget range</span>
                 <select name="budget">
@@ -92,100 +100,61 @@ const assessForm = (id) => `
                   <option>Over K50,000</option>
                   <option>Need advice first</option>
                 </select></label>
+              <label class="field"><span>Preferred date</span>
+                <input type="date" name="preferredDate"></label>
             </div>
-            <label class="field"><span>Describe your requirement<i class="req" aria-hidden="true">*</i></span>
+            <label class="field"><span>Description<i class="req" aria-hidden="true">*</i></span>
               <textarea name="message" placeholder="What are you trying to achieve? What is not working today? Where is the site?" required></textarea></label>
             <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
-            <button class="btn btn--primary btn--block" type="submit">Request a free assessment</button>
+            <div class="frow frow--btns">
+              <button class="btn btn--primary" type="submit">Request a free assessment</button>
+              <button class="btn btn--wa" type="button" data-wa-send>${I.wa}Send it on WhatsApp instead</button>
+            </div>
             <p class="fnote">No obligation. We reply the same working day, usually much sooner. Your details stay with us.</p>
             <p class="fstatus" role="status" aria-live="polite"></p>
           </form>`;
 
-const SERVICES = [
-  { id: 'networking', name: 'Networking', img: 'assets/svc/network.jpg', alt: 'A network cabinet with patch panel, switches and neatly routed blue and grey cables',
-    pts: ['LAN/WAN', 'Wi-Fi', 'Routers', 'Switches', 'Structured cabling', 'Network configuration'],
-    lede: 'Wired and wireless networks that stay up. We design, cable, configure and document, so the next person can find the fault as fast as we can.' },
-  { id: 'cctv', name: 'CCTV & Security', img: 'assets/svc/cctv.jpg', alt: 'A security camera mounted under the eaves of a building',
-    pts: ['CCTV installation', 'NVR/DVR', 'Remote monitoring', 'Camera configuration', 'Maintenance'],
-    lede: 'Cameras placed where they actually see, recorders sized for the days you need, and a phone app that works from anywhere.' },
-  { id: 'starlink', name: 'Starlink & Connectivity', img: 'assets/svc/starlink.jpg', alt: 'A flat satellite internet panel on a pole against a dusk sky',
-    pts: ['Starlink installation', 'Network configuration', 'Wi-Fi optimisation', 'Internet troubleshooting', 'Connectivity solutions'],
-    lede: 'Internet for the places the cable never reached. We supply, mount, power and set up, then stay on call if anything drops.' },
-  { id: 'managed-it', name: 'Managed IT Services', img: 'assets/svc/managed.jpg', alt: 'Monitors on desks in an office at dusk beside a server tower',
-    pts: ['Computer support', 'Hardware maintenance', 'Software support', 'Network support', 'IT consulting'],
-    lede: 'Your IT department without hiring one. Monthly, part-time, or when something breaks. Includes 24/7 support and e-services help.' },
-  { id: 'software', name: 'Software & Digital Solutions', img: 'assets/svc/web.jpg', alt: 'A laptop and a phone lit up on a desk',
-    pts: ['Website development', 'Business systems', 'Digital automation', 'Custom software', 'Digital transformation'],
-    lede: 'Modern websites and business tools, built, hosted and kept running. Solwezi Connect is our own product, so we use what we sell.' },
-  { id: 'training', name: 'IT Training', img: 'assets/photos/training.jpg', alt: 'Young Zambian adults learning at desktop computers in a training room, one pointing at a classmate\u2019s screen',
-    pts: ['Computer skills', 'Digital literacy', 'Networking fundamentals', 'IT support skills', 'Business technology training'],
-    lede: 'Practical skills taught by people who install this equipment for a living. Free basic training for youth, and paid courses for businesses.' },
-];
-
 const WHY = [
-  ['\u{1F1FF}\u{1F1F2}', 'Zambian Technology Expertise', 'Solutions designed around local needs.'],
-  ['\u26A1', 'Fast Response', 'Responsive technical support when you need it.'],
-  ['\u{1F4B0}', 'Affordable', 'Solutions designed around practical budgets.'],
-  ['\u{1F6E0}\uFE0F', 'Professional Installation', 'Careful installation and configuration.'],
-  ['\u{1F512}', 'Security Focused', 'Reliable technology and security infrastructure.'],
-  ['\u{1F91D}', 'Long-Term Support', 'We don\u2019t disappear after installation.'],
+  ['\u{1F1FF}\u{1F1F2}', 'Local Zambian Expertise', 'Solutions designed around local needs, by people based in Solwezi.'],
+  ['⚡', 'Fast Response', 'Responsive technical support when you need it, on WhatsApp first.'],
+  ['\u{1F4B0}', 'Affordable Solutions', 'Solutions designed around practical budgets, priced before work starts.'],
+  ['\u{1F6E0}️', 'Professional Installation', 'Careful installation and configuration, labelled and documented.'],
+  ['\u{1F512}', 'Security Focused', 'Reliable technology and security infrastructure, done properly.'],
+  ['\u{1F91D}', 'Long-Term Support', 'We don’t disappear after installation.'],
 ];
 
-// Each of these describes a KIND of job we do. None is a claim about a
-// specific past project, and every image is labelled as illustrative.
-const PROJECTS = [
-  { type: 'Network installation', title: 'Small-business office network', img: 'assets/svc/network.jpg', alt: 'Patch panel and switches in a wall cabinet',
-    loc: 'Solwezi District', sol: 'Structured cabling, managed switch, Wi-Fi',
-    desc: 'Every desk cabled to a labelled patch panel, one managed switch, business Wi-Fi with a separate guest network, and a drawing left with the owner.' },
-  { type: 'CCTV installation', title: 'Retail shop camera system', img: 'assets/svc/cctv.jpg', alt: 'Security camera on a building exterior',
-    loc: 'Solwezi District', sol: 'IP cameras, NVR, phone viewing',
-    desc: 'Cameras covering the till, the door and the stockroom, thirty days of recording, and the owner watching from their phone at home.' },
-  { type: 'Business IT setup', title: 'New office, from boxes to working desks', img: 'assets/photos/office-setup.jpg', alt: 'Two technicians setting up computers and a router in a freshly painted office',
-    loc: 'Solwezi District', sol: 'Computers, printer, router, backups',
-    desc: 'Computers unboxed, set up and secured, a shared printer, a router configured properly, and a backup that runs without anyone remembering to.' },
-  { type: 'Wi-Fi installation', title: 'School computer room and staff Wi-Fi', img: 'assets/photos/school.jpg', alt: 'Pupils in uniform at computers in a classroom with an access point on the wall',
-    loc: 'Solwezi District', sol: 'Access points, content filtering, lab setup',
-    desc: 'Coverage across classrooms and the staff room, filtering appropriate for pupils, and a computer room that the teacher can reset in a minute.' },
-  { type: 'Starlink installation', title: 'Connectivity for a remote site', img: 'assets/svc/starlink.jpg', alt: 'Satellite dish mounted on a roof',
-    loc: 'North-Western Province', sol: 'Starlink, mounting, power, local Wi-Fi',
-    desc: 'A lodge, a farm or a camp with no fibre and poor mobile signal gets a dish on a proper mount, clean power, and Wi-Fi that reaches the rooms.' },
-  { type: 'Computer & server setup', title: 'Site office for an industrial contractor', img: 'assets/photos/mining-office.jpg', alt: 'An administrator in a safety vest at a two-screen workstation in a site office',
-    loc: 'Solwezi District', sol: 'Workstations, UPS, shared storage, support',
-    desc: 'Dusty, hot and off the main road. Workstations with clean power, shared files that survive a power cut, and a support line that answers.' },
-];
-
-const INDUSTRIES = [
-  { t: 'Businesses', s: 'Offices, SMEs, contractors', img: 'assets/photos/office-setup.jpg', alt: 'Technicians setting up computers in an office' },
-  { t: 'Schools', s: 'Computer rooms, staff networks', img: 'assets/photos/school.jpg', alt: 'Pupils at computers in a Zambian classroom' },
-  { t: 'NGOs', s: 'Field offices, reporting, security', ico: '\u{1F91D}' },
-  { t: 'Government offices', s: 'Networks, e-services, support', ico: '\u{1F3DB}\uFE0F' },
-  { t: 'Mining & industrial', s: 'Site offices, camps, remote links', img: 'assets/photos/mining-office.jpg', alt: 'A site office overlooking red earth and a parked pickup' },
-  { t: 'Retail shops', s: 'CCTV, tills, Wi-Fi', img: 'assets/photos/shop-consult.jpg', alt: 'A consultant showing a shop owner something on a tablet in a grocery shop' },
-  { t: 'Homes', s: 'Internet, Wi-Fi, cameras', img: 'assets/photos/home-internet.jpg', alt: 'A technician mounting a dish on a house while the homeowner watches' },
-  { t: 'Communities', s: 'Training, digital inclusion', img: 'assets/photos/training.jpg', alt: 'Young people learning at computers' },
-];
-
+// Marketplace categories, each pointing at the matching place in the app
 const MK_CATS = [
-  ['\u{1F697}', 'Hire a Vehicle'], ['\u{1F4E6}', 'Delivery Services'], ['\u{1F9F9}', 'House Cleaning'],
-  ['\u{1F455}', 'Laundry Services'], ['\u{1F3E0}', 'Houses for Rent'], ['\u{1F469}\u{1F3FF}\u200D\u{1F373}', 'Helpers & Maids'],
-  ['\u{1F527}', 'Skilled Workers'], ['\u{1F4BC}', 'Jobs'], ['\u{1F6E0}\uFE0F', 'General Services'],
+  ['\u{1F4BC}', 'Jobs', '/jobs'], ['\u{1F9F9}', 'Cleaning', '/services'], ['\u{1F3E0}', 'Property', '/property'],
+  ['\u{1F697}', 'Vehicles', '/vehicles'], ['\u{1F4E6}', 'Delivery', '/delivery'], ['\u{1F527}', 'Skilled Workers', '/services'],
+  ['\u{1F6E0}️', 'General Work', '/jobs'], ['\u{1F469}\u{1F3FF}‍\u{1F373}', 'Maids & Helpers', '/services'], ['\u{1F3EA}', 'Businesses', '/businesses'],
 ];
 
 const FAQ = [
-  ['How fast do you actually respond?', 'We are based in Solwezi District, so a call goes to someone who can be on your site the same day. Our helpdesk runs 24/7, and WhatsApp is the fastest way to reach us at any hour.'],
+  ['How fast do you actually respond?', 'We are based in Solwezi District, so a call goes to someone who can be on your site the same day. Our support line runs 24/7, and WhatsApp is the fastest way to reach us at any hour.'],
   ['Will there be hidden costs or travel charges?', 'No. You get the price before the work starts, and we do not bill travel time or mileage for jobs inside Solwezi District. If a job needs parts we did not expect, we tell you before we buy them.'],
-  ['Do I have to sign a long contract?', 'No. You can call us for one job, take managed support monthly, or use our part-time IT support as and when you need it. Nothing locks you in.'],
-  ['Are you going to still be here next year?', 'We have served mining contractors, SMEs, schools, lodges and government institutions in Solwezi District for 5 years. This is our home district, not a territory we visit.'],
+  ['Do I have to sign a long contract?', 'No. You can call us for one job, take managed support monthly, or use part-time IT support as and when you need it. Nothing locks you in.'],
+  ['Are you going to still be here next year?', YEARS ? `We have served businesses, schools, lodges and institutions in Solwezi District for ${YEARS} years. This is our home district, not a territory we visit.` : 'Solwezi District is our home, not a territory we visit. We are here because we live here.'],
   ['Can Starlink really work at a remote site?', 'Yes. Starlink is built for places the cable never reached, which is exactly why it suits remote and off-grid sites here. We handle the sale, the mounting, the power, and the setup, then we stay on call if anything drops.'],
 ];
 
 // ---------------------------------------------------------------- shell
-function shell({ file, title, desc, ogTitle, ogImage = 'assets/og.jpg', ogAlt, jsonld, body, extraHead = '' }) {
+function shell({ file, title, desc, ogTitle, ogImage = 'assets/og.jpg', ogAlt, jsonld, body, extraHead = '', crumb }) {
   const url = BASE + (file === 'index.html' ? '' : file);
   const nav = NAV.map(([h, l]) => `<a href="${h}"${h === file ? ' aria-current="page"' : ''}>${l}</a>`).join('\n      ');
   const drawer = NAV.map(([h, l]) => `<li><a href="${h}"${h === file ? ' aria-current="page"' : ''}>${l}</a></li>`).join('\n        ');
   const ftrLinks = [['index.html', 'Home'], ['services.html', 'Services'], ['projects.html', 'Projects'], ['about.html', 'About'], ['marketplace.html', 'Marketplace'], ['contact.html', 'Contact'], ['privacy.html', 'Privacy Policy'], ['terms.html', 'Terms']]
     .map(([h, l]) => `<li><a href="${h}">${l}</a></li>`).join('\n          ');
+
+  const socials = Object.entries(SITE.social || {}).filter(([k, v]) => k !== '_readme' && v && I[k])
+    .map(([k, v]) => `<a href="${esc(v)}" target="_blank" rel="noopener" aria-label="${k[0].toUpperCase() + k.slice(1)}">${I[k]}</a>`).join('\n          ');
+
+  const graph = [];
+  if (jsonld) graph.push(...(Array.isArray(jsonld) ? jsonld : [jsonld]));
+  if (crumb) graph.push({ '@type': 'BreadcrumbList', itemListElement: [
+    { '@type': 'ListItem', position: 1, name: 'Home', item: BASE },
+    { '@type': 'ListItem', position: 2, name: crumb, item: url },
+  ] });
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -207,12 +176,15 @@ function shell({ file, title, desc, ogTitle, ogImage = 'assets/og.jpg', ogAlt, j
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="${ogAlt || NAME + '. ' + TAG}">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${ogTitle || title}">
+<meta name="twitter:description" content="${desc}">
+<meta name="twitter:image" content="${BASE}${ogImage}">
 
 <link rel="icon" href="${FAVICON}">
 <link rel="preload" as="font" type="font/woff2" href="assets/fonts/sora-var.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="assets/fonts/plex-sans-var.woff2" crossorigin>
 ${extraHead}<link rel="stylesheet" href="assets/site.css">
-${jsonld ? `<script type="application/ld+json">\n${JSON.stringify(jsonld, null, 1)}\n</script>` : ''}
+${graph.length ? `<script type="application/ld+json">\n${JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }, null, 1)}\n</script>` : ''}
 </head>
 <body>
 
@@ -243,7 +215,7 @@ ${jsonld ? `<script type="application/ld+json">\n${JSON.stringify(jsonld, null, 
     </nav>
 
     <div class="hdr__cta">
-      <a class="btn btn--wa btn--sm" href="${WA_URL}" target="_blank" rel="noopener">${I.wa}WhatsApp</a>
+      ${btnWa('WhatsApp', 'btn btn--wa btn--sm')}
       <a class="btn btn--primary btn--sm hdr__quote" href="contact.html#assessment">Get a free quote</a>
     </div>
 
@@ -258,7 +230,7 @@ ${jsonld ? `<script type="application/ld+json">\n${JSON.stringify(jsonld, null, 
       </ul>
       <div class="drawer__cta">
         <a class="btn btn--primary" href="contact.html#assessment">Get a free quote</a>
-        <a class="btn btn--wa" href="${WA_URL}" target="_blank" rel="noopener">WhatsApp</a>
+        ${btnWa('WhatsApp us')}
         <a class="btn btn--ghost" href="tel:${PHONE_RAW}">Call ${PHONE}</a>
       </div>
     </div>
@@ -279,11 +251,12 @@ ${body}
         </a>
         <p class="ftr__tag">${TAG}</p>
         <p>A Zambian technology and innovation company in Solwezi District. IT support, networking, CCTV, Starlink, software, training, and the Solwezi Connect marketplace.</p>
-        <div class="ftr__social" aria-label="Contact channels">
+        <div class="ftr__social" aria-label="Contact channels and social media">
           <a href="${WA_URL}" target="_blank" rel="noopener" aria-label="WhatsApp">${I.wa}</a>
           <a href="tel:${PHONE_RAW}" aria-label="Phone">${I.phone}</a>
           <a href="mailto:${EMAIL}" aria-label="Email">${I.mail}</a>
           <a href="${APP}" aria-label="Solwezi Connect">${I.connect}</a>
+          ${socials}
         </div>
       </div>
 
@@ -300,7 +273,7 @@ ${body}
           <li><a href="tel:${PHONE_RAW}">${I.phone}${PHONE}</a></li>
           <li><a href="${WA_URL}" target="_blank" rel="noopener">${I.wa}WhatsApp ${WA}</a></li>
           <li><a href="mailto:${EMAIL}">${I.mail}${EMAIL}</a></li>
-          <li><a href="contact.html">${I.pin}Solwezi District, Zambia</a></li>
+          <li><a href="contact.html">${I.pin}${SITE.location}</a></li>
         </ul>
       </div>
     </div>
@@ -340,35 +313,44 @@ const trustStrip = () => `
 
 const serviceCards = () => `
       <div class="scards stag">
-        ${SERVICES.map((s) => `<article class="scard">
-          <div class="scard__art"><img src="${s.img}" alt="${s.alt}" loading="lazy" width="1200" height="750"></div>
+        ${SERVICES.filter((s) => s.homeCard !== false).map((s) => `<article class="scard">
+          <div class="scard__art"><img src="${s.image}" alt="${esc(s.alt)}" loading="lazy" width="1200" height="750"></div>
           <div class="scard__body">
             <h3>${s.name}</h3>
-            <ul>${s.pts.map((p) => `<li>${p}</li>`).join('')}</ul>
+            <ul>${s.items.map((p) => `<li>${p}</li>`).join('')}</ul>
             <a class="scard__link" href="services.html#${s.id}">More about ${s.name}</a>
           </div>
         </article>`).join('\n        ')}
       </div>`;
 
-const industriesGrid = () => `
-      <div class="inds stag">
-        ${INDUSTRIES.map((d) => d.img
-          ? `<a class="ind" href="solutions.html#${slug(d.t)}"><img src="${d.img}" alt="${d.alt}" loading="lazy" width="1200" height="900"><span class="ind__label">${d.t}<small>${d.s}</small></span></a>`
-          : `<a class="ind ind--flat" href="solutions.html#${slug(d.t)}"><span class="ind__ico" aria-hidden="true">${d.ico}</span><span class="ind__label">${d.t}<small>${d.s}</small></span></a>`).join('\n        ')}
+const whyBlocks = () => `
+      <div class="why stag">
+        ${WHY.map(([e, h, p]) => `<div class="why__item"><span class="why__e" aria-hidden="true">${e}</span><h3>${h}</h3><p>${p}</p></div>`).join('\n        ')}
       </div>`;
 
-const projectCards = (list = PROJECTS) => `
+const industriesGrid = () => `
+      <div class="inds stag">
+        ${INDUSTRIES.map((d) => d.image
+          ? `<a class="ind" href="solutions.html#${d.id}"><img src="${d.image}" alt="${esc(d.alt)}" loading="lazy" width="1200" height="900"><span class="ind__label">${d.name}<small>${d.tile}</small></span></a>`
+          : `<a class="ind ind--flat" href="solutions.html#${d.id}"><span class="ind__ico" aria-hidden="true">${d.icon}</span><span class="ind__label">${d.name}<small>${d.tile}</small></span></a>`).join('\n        ')}
+      </div>`;
+
+const projectCards = (list = PROJECTS, full = false) => `
       <div class="projs stag">
         ${list.map((p) => `<article class="proj">
           <figure>
-            <img src="${p.img}" alt="${p.alt}" loading="lazy" width="1200" height="800">
-            <figcaption class="proj__illus">Illustrative project image</figcaption>
+            <img src="${p.image}" alt="${esc(p.alt)}" loading="lazy" width="1200" height="800">
+            ${p.illustrative ? '<figcaption class="proj__illus">Illustrative image</figcaption>' : ''}
           </figure>
           <div class="proj__body">
-            <span class="proj__type">${p.type}</span>
+            <span class="proj__type">${p.category}</span>
             <h3>${p.title}</h3>
-            <dl><dt>Location</dt><dd>${p.loc}</dd><dt>Solution</dt><dd>${p.sol}</dd></dl>
-            <p>${p.desc}</p>
+            <dl>
+              <dt>Location</dt><dd>${p.location}</dd>
+              ${p.date ? `<dt>Date</dt><dd>${p.date}</dd>` : ''}
+              ${full ? `<dt>Problem</dt><dd>${p.problem}</dd><dt>Solution</dt><dd>${p.solution}</dd><dt>Equipment</dt><dd>${p.equipment}</dd><dt>Result</dt><dd>${p.result}</dd>` : `<dt>Solution</dt><dd>${p.equipment}</dd>`}
+            </dl>
+            ${full ? '' : `<p>${p.solution}</p>`}
           </div>
         </article>`).join('\n        ')}
       </div>`;
@@ -378,14 +360,14 @@ const marketplaceBand = () => `
     <div class="shell">
       <div class="connect-band__in rv">
         <span class="connect-band__tag">${I.connect.replace('<svg', '<svg style="width:14px;height:14px"')} Now live</span>
-        <h2>Find Services. <em>Find Opportunities.</em> Connect Locally.</h2>
-        <p class="connect-band__tagline">Solwezi Connect, a Ginger Tec product.</p>
-        <p class="connect-band__lede">A digital marketplace connecting people, businesses and service providers across Solwezi. Free to join.</p>
-        <ul class="connect-band__grid">
-          ${MK_CATS.map(([e, t]) => `<li><span aria-hidden="true">${e}</span> ${t}</li>`).join('\n          ')}
+        <h2>Solwezi <em>Connect</em></h2>
+        <p class="connect-band__tagline">Find Services. Find Opportunities. Connect Locally.</p>
+        <p class="connect-band__lede">Find local services, jobs and opportunities. Find a service. Find a worker. Find a vehicle. Find property. Find work. Post an opportunity. A digital marketplace connecting people, businesses and service providers across Solwezi, free to join.</p>
+        <ul class="connect-band__grid connect-band__grid--links">
+          ${MK_CATS.map(([e, t, p]) => `<li><a href="${APP}${p}"><span aria-hidden="true">${e}</span> ${t}</a></li>`).join('\n          ')}
         </ul>
         <div class="connect-band__row">
-          <a class="btn connect-band__btn" href="${APP}">Explore the marketplace</a>
+          <a class="btn connect-band__btn" href="${APP}">Explore marketplace</a>
           <a class="btn btn--onDeep" href="${APP}/post">Post a job</a>
         </div>
         <p class="connect-band__note">Built in Solwezi, for Solwezi, and built to grow across Zambia. <a href="marketplace.html">How it works</a>.</p>
@@ -411,168 +393,30 @@ const contactGrid = () => `
         <a class="cg" href="${WA_URL}" target="_blank" rel="noopener"><span class="cg__k">WhatsApp</span><span class="cg__v">${WA}</span><span class="cg__s">Fastest reply, any hour</span></a>
         <a class="cg" href="tel:${PHONE_RAW}"><span class="cg__k">Phone</span><span class="cg__v">${PHONE}</span><span class="cg__s">Support line, 24/7</span></a>
         <a class="cg" href="mailto:${EMAIL}"><span class="cg__k">Email</span><span class="cg__v">${EMAIL}</span><span class="cg__s">Same working day</span></a>
-        <div class="cg"><span class="cg__k">Location</span><span class="cg__v">Solwezi District, North-Western Province, Zambia</span><span class="cg__s">Site visits by appointment</span></div>
-        <div class="cg"><span class="cg__k">Business hours</span><span class="cg__v">Support: 24 hours, 7 days</span><span class="cg__s">Office enquiries: Monday to Saturday</span></div>
+        <div class="cg"><span class="cg__k">Location</span><span class="cg__v">${SITE.location}</span><span class="cg__s">Site visits by appointment</span></div>
+        <div class="cg"><span class="cg__k">Business hours</span><span class="cg__v">${SITE.hours.support}</span><span class="cg__s">${SITE.hours.office}</span></div>
       </div>`;
 
-const slug = (s) => s.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-
-const business = {
-  '@type': 'ProfessionalService',
-  '@id': BASE + '#business',
-  name: NAME,
-  url: BASE,
-  image: BASE + 'assets/og.jpg',
-  logo: BASE + 'assets/og.jpg',
-  slogan: TAG,
-  description: 'Zambian technology and innovation company in Solwezi District providing IT support and managed IT services, network installation, LAN/WAN and Wi-Fi infrastructure, CCTV and security systems, Starlink and internet connectivity, computer hardware and maintenance, software and website development, and digital literacy and IT training.',
-  telephone: PHONE_RAW,
-  email: EMAIL,
-  address: { '@type': 'PostalAddress', addressLocality: 'Solwezi', addressRegion: 'North-Western Province', addressCountry: 'ZM' },
-  areaServed: [{ '@type': 'AdministrativeArea', name: 'Solwezi District' }, { '@type': 'Country', name: 'Zambia' }],
-  openingHoursSpecification: [{ '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], opens: '00:00', closes: '23:59' }],
-  sameAs: [APP],
-  knowsAbout: ['IT support', 'Managed IT services', 'Network installation', 'Wi-Fi installation', 'Structured cabling', 'CCTV installation', 'Starlink installation', 'Computer maintenance', 'Website development', 'Software development', 'IT training', 'Digital literacy'],
-  hasOfferCatalog: {
-    '@type': 'OfferCatalog', name: 'Technology services',
-    itemListElement: SERVICES.map((s) => ({ '@type': 'Offer', itemOffered: { '@type': 'Service', name: s.name, description: s.lede, url: BASE + 'services.html#' + s.id, areaServed: 'Solwezi District, Zambia' } })),
-  },
-};
-
-// ---------------------------------------------------------------- pages
-const pages = [];
-
-pages.push({
-  file: 'index.html',
-  title: 'Ginger Tec Solutions | IT, Networking, CCTV & Starlink in Solwezi',
-  desc: 'Zambian IT company in Solwezi District: IT support, network and Wi-Fi installation, CCTV, Starlink, software, websites and IT training. Technology that works, built for Zambia. WhatsApp +260 960 884 708.',
-  ogTitle: 'Ginger Tec Solutions | Technology That Works. Built for Zambia.',
-  ogImage: 'assets/og-hero.jpg',
-  extraHead: `<link rel="preload" as="image" href="assets/photos/hero-technician.jpg" imagesrcset="assets/photos/hero-technician-m.jpg 900w, assets/photos/hero-technician.jpg 1344w" imagesizes="100vw">\n`,
-  jsonld: { '@context': 'https://schema.org', '@graph': [
-    business,
-    { '@type': 'WebSite', '@id': BASE + '#website', url: BASE, name: NAME, publisher: { '@id': BASE + '#business' }, inLanguage: 'en' },
-    { '@type': 'FAQPage', '@id': BASE + '#faq', mainEntity: FAQ.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) },
-  ] },
-  body: `
-  <!-- ============================ HERO ============================ -->
-  <section class="hero2" aria-label="${NAME}">
-    <div class="hero2__media">
-      <img src="assets/photos/hero-technician.jpg" srcset="assets/photos/hero-technician-m.jpg 900w, assets/photos/hero-technician.jpg 1344w" sizes="100vw" width="1344" height="752" fetchpriority="high" alt="A Zambian network technician crouched at a wall-mounted cabinet, clipping a blue patch cable into a switch in the back room of a hardware shop in Solwezi">
-    </div>
-    <div class="hero2__scrim"></div>
-    <div class="shell hero2__in">
-      <span class="kicker">Solwezi District, Zambia</span>
-      <h1>Technology That Works. <em>Built for Zambia.</em></h1>
-      <p class="hero2__sub">Reliable IT, networking, security and connectivity solutions for homes, businesses and communities.</p>
-      <p class="hero2__sup">Based in Solwezi District, ${NAME} delivers practical, affordable and professional technology solutions across Zambia.</p>
-      <div class="hero2__row">
-        ${btnQuote('btn btn--primary')}
-        ${btnWa('Chat on WhatsApp')}
-      </div>
-      <div class="hero2__facts">
-        <span>${I.pin}<b>Solwezi</b> based, Zambia wide</span>
-        <span>${I.clock}<b>24/7</b> support line</span>
-        <span>${I.phone}<b>${PHONE}</b></span>
-      </div>
-    </div>
-  </section>
-
-  ${trustStrip()}
-
-  <!-- ============================ SERVICES ============================ -->
-  <section class="sec" id="services">
-    <div class="shell">
-      <div class="sec__head rv">
-        <span class="kicker">What we do</span>
-        <h2 class="h2">Technology Solutions for Real-World Needs</h2>
-        <p class="lede">Six things we do well, from the cable in the wall to the training that makes it useful. Every one comes with a clear price and someone to call afterwards.</p>
-      </div>
-      ${serviceCards()}
-      <p class="projs__note rv">Also: Government e-services help for the ZamServices portal, ICT consultancy, and part-time IT support. <a href="services.html">See every service</a>.</p>
-    </div>
-  </section>
-
-  <!-- ============================ WHY ============================ -->
-  <section class="sec sec--deep">
-    <div class="shell">
-      <div class="sec__head rv">
-        <span class="kicker">Why Ginger Tec</span>
-        <h2 class="h2">Why Choose Ginger Tec?</h2>
-      </div>
-      <div class="why stag">
-        ${WHY.map(([e, h, p]) => `<div class="why__item"><span class="why__e" aria-hidden="true">${e}</span><h3>${h}</h3><p>${p}</p></div>`).join('\n        ')}
-      </div>
-    </div>
-  </section>
-
-  <!-- ============================ PROJECTS ============================ -->
-  <section class="sec">
-    <div class="shell">
-      <div class="sec__head rv">
-        <span class="kicker">Technology projects</span>
-        <h2 class="h2">The kind of work we do</h2>
-        <p class="lede">Six typical jobs, what they involve, and what you get at the end. Photographs are illustrative; real project photos are added as clients give permission.</p>
-      </div>
-      ${projectCards()}
-      <p class="rv" style="margin-top:28px"><a class="btn btn--ghost" href="projects.html">All project types</a></p>
-    </div>
-  </section>
-
-  <!-- ============================ INDUSTRIES ============================ -->
-  <section class="sec sec--deep">
-    <div class="shell">
-      <div class="sec__head rv">
-        <span class="kicker">Industries we serve</span>
-        <h2 class="h2">Technology for Every Environment</h2>
-        <p class="lede">Different buildings, the same problem: the work stops when the technology does.</p>
-      </div>
-      ${industriesGrid()}
-    </div>
-  </section>
-
-  ${marketplaceBand()}
-
-  <!-- ============================ ABOUT ============================ -->
-  <section class="sec">
-    <div class="shell">
-      <div class="feat">
-        <div class="rv">
-          <span class="kicker">About Ginger Tec</span>
-          <h2 class="h2">Technology. Innovation. Opportunity.</h2>
-          <p class="lede">${NAME} is a Zambian technology and innovation company focused on making technology, skills and innovative solutions more accessible to individuals, businesses and communities.</p>
-          <ul class="ticks">
-            <li>Young people</li><li>Women</li><li>People with disabilities</li><li>Businesses</li><li>Communities</li><li>Five years serving Solwezi District</li>
-          </ul>
-          <p style="margin-top:24px"><a class="btn btn--primary" href="about.html">Our story</a></p>
-        </div>
-        <figure class="feat__art rv">
-          <img src="assets/photos/women-tech.jpg" alt="A young Zambian woman in a blue work shirt crimping an Ethernet cable at a workshop bench" loading="lazy" width="1200" height="900">
-        </figure>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============================ COMMUNITY ============================ -->
-  <section class="sec sec--deep">
+const communitySection = () => `
+  <section class="sec sec--deep" id="community">
     <div class="shell">
       <div class="feat feat--flip">
         <div class="rv">
           <span class="kicker">Community &amp; digital empowerment</span>
           <h2 class="h2">Technology Should Create Opportunity</h2>
-          <p class="lede">The equipment is only half of it. The other half is people who can use it, fix it and build on it. That is why we teach.</p>
+          <p class="lede">The equipment is only half of it. The other half is people who can use it, fix it and build on it. That is why we teach, and why we built a marketplace.</p>
           <ul class="ticks">
-            <li>Digital literacy</li><li>IT training</li><li>Youth empowerment</li><li>Women in technology</li><li>Digital inclusion</li><li>Community innovation</li>
+            <li>Digital literacy</li><li>Youth empowerment</li><li>Women in technology</li><li>IT training</li><li>Community connectivity</li><li>Digital inclusion</li><li>Entrepreneurship</li>
           </ul>
         </div>
         <figure class="feat__art rv">
-          <img src="assets/photos/training.jpg" alt="Young Zambian adults at desktop computers in a whitewashed training room, one woman in a headwrap pointing at a classmate\u2019s screen" loading="lazy" width="1003" height="752">
+          <img src="assets/photos/training.jpg" alt="Young Zambian adults at desktop computers in a whitewashed training room, one woman in a headwrap pointing at a classmate’s screen" loading="lazy" width="1003" height="752">
+          <figcaption>Illustrative image</figcaption>
         </figure>
       </div>
     </div>
   </section>
 
-  <!-- ==================== FREE YOUTH TRAINING (kept distinct) ==================== -->
   <section class="sec give">
     <div class="shell give__in">
       <div class="rv">
@@ -587,9 +431,9 @@ pages.push({
         <li><span><b>Internet safety</b>Staying safe online, and keeping an employer's data safe too.</span></li>
       </ul>
     </div>
-  </section>
+  </section>`;
 
-  <!-- ============================ TESTIMONIALS ============================ -->
+const testimonialsSection = () => `
   <section class="sec">
     <div class="shell">
       <div class="sec__head rv">
@@ -597,16 +441,15 @@ pages.push({
         <h2 class="h2">In their words</h2>
         <p class="lede">We only publish testimonials from real customers, in their own words, with their permission. This section fills as they come in.</p>
       </div>
-      <!-- PLACEHOLDER CONTENT: replace each .testi with a genuine, permitted customer quote. Never invent one. -->
+      <!-- PLACEHOLDER CONTENT until content/testimonials.json holds real, permitted quotes. Never invent one. -->
       <div class="testis stag">
-        <div class="testi"><span class="testi__mark" aria-hidden="true">&ldquo;</span><p>Space reserved for a customer's words about a network or CCTV installation.</p><div class="testi__who"><i aria-hidden="true"></i>Customer name and business, with permission</div></div>
-        <div class="testi"><span class="testi__mark" aria-hidden="true">&ldquo;</span><p>Space reserved for a customer's words about support, response time or a Starlink setup.</p><div class="testi__who"><i aria-hidden="true"></i>Customer name and business, with permission</div></div>
+        ${TESTIMONIALS.map((t) => `<div class="testi${t.placeholder ? '' : ' testi--real'}"><span class="testi__mark" aria-hidden="true">&ldquo;</span><p>${esc(t.quote)}</p><div class="testi__who"><i aria-hidden="true"></i>${esc(t.who)}</div></div>`).join('\n        ')}
         <div class="testi testi--ask"><p><strong>Have we worked for you?</strong> Tell us what you thought, good or bad. If you are happy for us to publish it, it goes here with your name.</p>${btnWa('Send a testimonial', 'btn btn--wa btn--sm')}</div>
       </div>
     </div>
-  </section>
+  </section>`;
 
-  <!-- ============================ FREE ASSESSMENT ============================ -->
+const assessSection = (formId, points) => `
   <section class="sec sec--deep assess" id="assessment">
     <div class="shell">
       <div class="assess__grid">
@@ -614,22 +457,150 @@ pages.push({
           <span class="kicker">Free technology assessment</span>
           <h2 class="h2">Not Sure What Technology You Need?</h2>
           <p class="lede">Tell us what you're trying to achieve. We'll help you identify the right technology solution for your home, business or organisation.</p>
-          <ul class="assess__pts">
-            <li>A straight answer, not a sales pitch</li>
-            <li>A clear price before any work starts</li>
-            <li>Prefer to talk? <a href="${WA_URL}" target="_blank" rel="noopener" style="color:#9db9f5">WhatsApp us</a> or call ${PHONE}</li>
-          </ul>
+          <ul class="assess__pts">${points.map((p) => `<li>${p}</li>`).join('')}</ul>
         </div>
         <div class="formwrap rv">
-          ${assessForm('assess-form')}
+          ${assessForm(formId)}
         </div>
+      </div>
+    </div>
+  </section>`;
+
+const business = {
+  '@type': 'ProfessionalService',
+  '@id': BASE + '#business',
+  name: NAME, url: BASE, image: BASE + 'assets/og-hero.jpg', logo: BASE + 'assets/og.jpg', slogan: TAG,
+  description: 'Zambian technology and innovation company in Solwezi District providing IT support and managed IT services, network installation, LAN/WAN and Wi-Fi infrastructure, CCTV and security systems, Starlink and internet connectivity, computer hardware and maintenance, software and website development, and digital literacy and IT training.',
+  telephone: PHONE_RAW, email: EMAIL,
+  address: { '@type': 'PostalAddress', addressLocality: 'Solwezi', addressRegion: 'North-Western Province', addressCountry: 'ZM' },
+  areaServed: [{ '@type': 'AdministrativeArea', name: 'Solwezi District' }, { '@type': 'Country', name: 'Zambia' }],
+  openingHoursSpecification: [{ '@type': 'OpeningHoursSpecification', dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], opens: '00:00', closes: '23:59' }],
+  sameAs: [APP].concat(Object.entries(SITE.social || {}).filter(([k, v]) => k !== '_readme' && v).map(([, v]) => v)),
+  knowsAbout: ['IT support', 'Managed IT services', 'Network installation', 'Wi-Fi installation', 'Structured cabling', 'CCTV installation', 'Starlink installation', 'Computer maintenance', 'Website development', 'Software development', 'IT training', 'Digital literacy'],
+  hasOfferCatalog: { '@type': 'OfferCatalog', name: 'Technology services',
+    itemListElement: SERVICES.map((s) => ({ '@type': 'Offer', itemOffered: { '@type': 'Service', name: s.name, description: s.lede, url: BASE + 'services.html#' + s.id, areaServed: 'Solwezi District, Zambia' } })) },
+};
+
+// ---------------------------------------------------------------- pages
+const pages = [];
+
+pages.push({
+  file: 'index.html',
+  title: 'Ginger Tec Solutions | IT, Networking, CCTV & Starlink in Solwezi',
+  desc: 'Zambian IT company in Solwezi: IT support, networking, Wi-Fi, CCTV, Starlink, software, websites and IT training. Technology that works, built for Zambia.',
+  ogTitle: 'Ginger Tec Solutions | Technology That Works. Built for Zambia.',
+  ogImage: 'assets/og-hero.jpg',
+  extraHead: '<link rel="preload" as="image" href="assets/photos/hero-technician.jpg" imagesrcset="assets/photos/hero-technician-m.jpg 900w, assets/photos/hero-technician.jpg 1344w" imagesizes="100vw">\n',
+  jsonld: [business, { '@type': 'WebSite', '@id': BASE + '#website', url: BASE, name: NAME, publisher: { '@id': BASE + '#business' }, inLanguage: 'en' }],
+  body: `
+  <!-- HERO -->
+  <section class="hero2" aria-label="${NAME}">
+    <div class="hero2__media">
+      <img src="assets/photos/hero-technician.jpg" srcset="assets/photos/hero-technician-m.jpg 900w, assets/photos/hero-technician.jpg 1344w" sizes="100vw" width="1344" height="752" fetchpriority="high" alt="A Zambian network technician crouched at a wall-mounted cabinet, clipping a blue patch cable into a switch in the back room of a hardware shop in Solwezi">
+    </div>
+    <div class="hero2__scrim"></div>
+    <div class="shell hero2__in">
+      <span class="kicker">Solwezi District, Zambia</span>
+      <h1>Technology That Works. <em>Built for Zambia.</em></h1>
+      <p class="hero2__sub">Reliable IT, networking, security, connectivity and digital solutions for homes, businesses and communities.</p>
+      <p class="hero2__sup">Based in Solwezi District, ${NAME} provides practical and affordable technology solutions designed around real Zambian needs.</p>
+      <div class="hero2__row">
+        ${btnQuote('btn btn--primary')}
+        ${btnWa('Chat on WhatsApp')}
+      </div>
+      <div class="hero2__facts">
+        <span>${I.pin}<b>Solwezi</b> based, Zambia wide</span>
+        <span>${I.clock}<b>24/7</b> support line</span>
+        <span>${I.phone}<b>${PHONE}</b></span>
       </div>
     </div>
   </section>
 
-  ${faqSection()}
+  ${trustStrip()}
 
-  <!-- ============================ CONTACT ============================ -->
+  <!-- SERVICES -->
+  <section class="sec" id="services">
+    <div class="shell">
+      <div class="sec__head rv">
+        <span class="kicker">What we do</span>
+        <h2 class="h2">Technology Solutions for Real-World Needs</h2>
+        <p class="lede">Six things we do well, from the cable in the wall to the training that makes it useful. Every one comes with a clear price and someone to call afterwards.</p>
+      </div>
+      ${serviceCards()}
+      <p class="projs__note rv">Also: Government e-services help for the ZamServices portal. <a href="services.html">See every service</a>.</p>
+    </div>
+  </section>
+
+  <!-- WHY -->
+  <section class="sec sec--deep">
+    <div class="shell">
+      <div class="sec__head rv">
+        <span class="kicker">Why Ginger Tec</span>
+        <h2 class="h2">Why Choose Ginger Tec?</h2>
+      </div>
+      ${whyBlocks()}
+    </div>
+  </section>
+
+  <!-- SOLUTIONS BY INDUSTRY -->
+  <section class="sec">
+    <div class="shell">
+      <div class="sec__head rv">
+        <span class="kicker">Solutions by industry</span>
+        <h2 class="h2">Technology for Every Environment</h2>
+        <p class="lede">Different buildings, the same problem: the work stops when the technology does. Tap one to see what we put in place.</p>
+      </div>
+      ${industriesGrid()}
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section class="sec sec--deep">
+    <div class="shell">
+      <div class="sec__head rv">
+        <span class="kicker">Technology projects</span>
+        <h2 class="h2">The kind of work we do</h2>
+        <p class="lede">Six typical jobs, what they involve, and what you get at the end. Images marked illustrative are not photographs of our own work; real project photos replace them as clients give permission.</p>
+      </div>
+      ${projectCards()}
+      <p class="rv" style="margin-top:28px"><a class="btn btn--onDeep" href="projects.html">Every project type in detail</a></p>
+    </div>
+  </section>
+
+  ${marketplaceBand()}
+
+  ${communitySection()}
+
+  <!-- ABOUT -->
+  <section class="sec">
+    <div class="shell">
+      <div class="feat">
+        <div class="rv">
+          <span class="kicker">About Ginger Tec</span>
+          <h2 class="h2">Technology. Innovation. Opportunity.</h2>
+          <p class="lede">${NAME} is a Zambian technology and innovation company focused on making technology, skills and innovative solutions more accessible to individuals, businesses and communities.</p>
+          <ul class="ticks">
+            <li>Young people</li><li>Women</li><li>People with disabilities</li><li>Businesses</li><li>Communities</li>${YEARS ? `<li>${YEARS} years serving Solwezi District</li>` : ''}
+          </ul>
+          <p style="margin-top:24px"><a class="btn btn--primary" href="about.html">Our story</a></p>
+        </div>
+        <figure class="feat__art rv">
+          <img src="assets/photos/women-tech.jpg" alt="A young Zambian woman in a blue work shirt crimping an Ethernet cable at a workshop bench" loading="lazy" width="1200" height="900">
+          <figcaption>Illustrative image</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  ${testimonialsSection()}
+
+  ${assessSection('assess-form', [
+    'A straight answer, not a sales pitch',
+    'A clear price before any work starts',
+    `Prefer to talk? <a href="${WA_URL}" target="_blank" rel="noopener" style="color:#9db9f5">WhatsApp us</a> or call ${PHONE}`,
+  ])}
+
+  <!-- CONTACT -->
   <section class="sec sec--tight" id="contact">
     <div class="shell">
       <div class="sec__head rv">
@@ -650,10 +621,10 @@ pages.push({
 
 // ---- services
 pages.push({
-  file: 'services.html',
+  file: 'services.html', crumb: 'Services',
   title: 'IT Services in Solwezi | Networking, CCTV, Starlink & Managed IT',
-  desc: 'Network installation, Wi-Fi, structured cabling, CCTV installation, Starlink, managed IT services, software and website development, and IT training in Solwezi District and across Zambia.',
-  jsonld: { '@context': 'https://schema.org', '@type': 'ItemList', name: 'Ginger Tec Solutions services', itemListElement: SERVICES.map((s, i) => ({ '@type': 'ListItem', position: i + 1, url: BASE + 'services.html#' + s.id, name: s.name })) },
+  desc: 'Network and Wi-Fi installation, CCTV, Starlink, managed IT services, software and website development, and IT training in Solwezi and across Zambia.',
+  jsonld: { '@type': 'ItemList', name: 'Ginger Tec Solutions services', itemListElement: SERVICES.map((s, i) => ({ '@type': 'ListItem', position: i + 1, url: BASE + 'services.html#' + s.id, name: s.name })) },
   body: `
   <section class="phero">
     <div class="shell phero__in rv">
@@ -671,37 +642,21 @@ pages.push({
           <span class="svc__n">0${i + 1}</span>
           <h2 class="h3" style="font-size:clamp(24px,3vw,34px)">${s.name}</h2>
           <p class="lede" style="margin-top:12px">${s.lede}</p>
-          <ul class="svc__pts">${s.pts.map((p) => `<li>${p}</li>`).join('')}</ul>
+          <ul class="svc__pts">${s.items.map((p) => `<li>${p}</li>`).join('')}</ul>
           <div class="svc__act">
-            <a class="svc__act-link" href="contact.html#assessment">Get a quote for ${s.name.toLowerCase().replace(' & ', ' and ')} ${I.arrow}</a>
+            <a class="svc__act-link" href="contact.html#assessment">Get a quote for ${s.short.toLowerCase()} ${I.arrow}</a>
             <a class="svc__act-link svc__act-link--wa" href="${WA_URL}?text=${encodeURIComponent('Hi Ginger Tec, I would like to ask about ' + s.name)}" target="_blank" rel="noopener">${I.wa} Ask on WhatsApp</a>
           </div>
         </div>
-        <div class="svc__art"><img class="svc__img" src="${s.img}" alt="${s.alt}" loading="lazy" width="1200" height="896"><span class="svc__cap">${s.name}</span></div>
+        <div class="svc__art"><img class="svc__img" src="${s.image}" alt="${esc(s.alt)}" loading="lazy" width="1200" height="896"><span class="svc__cap">${s.short}</span></div>
       </article>`).join('\n      ')}
-
-      <article class="svc rv" id="egov">
-        <div>
-          <span class="svc__n">07</span>
-          <h2 class="h3" style="font-size:clamp(24px,3vw,34px)">Government e-Services Help</h2>
-          <p class="lede" style="margin-top:12px">We help you apply for any of the 572 services on the Government of Zambia ZamServices portal: PACRA registrations, ZRA, RTSA, mining licences, land records and more. You bring the documents; we handle the portal.</p>
-          <ul class="svc__pts"><li>PACRA</li><li>ZRA</li><li>RTSA</li><li>Licences &amp; permits</li><li>Land records</li></ul>
-          <div class="svc__act"><a class="svc__act-link" href="contact.html#assessment">Ask about e-services ${I.arrow}</a></div>
-        </div>
-        <div class="svc__art"><img class="svc__img" src="assets/svc/egov.jpg" alt="A laptop open on a government services portal" loading="lazy" width="1200" height="896"><span class="svc__cap">e-Services</span></div>
-      </article>
     </div>
   </section>
 
   <section class="sec sec--deep">
     <div class="shell">
-      <div class="sec__head rv">
-        <span class="kicker">Why Ginger Tec</span>
-        <h2 class="h2">Why Choose Ginger Tec?</h2>
-      </div>
-      <div class="why stag">
-        ${WHY.map(([e, h, p]) => `<div class="why__item"><span class="why__e" aria-hidden="true">${e}</span><h3>${h}</h3><p>${p}</p></div>`).join('\n        ')}
-      </div>
+      <div class="sec__head rv"><span class="kicker">Why Ginger Tec</span><h2 class="h2">Why Choose Ginger Tec?</h2></div>
+      ${whyBlocks()}
     </div>
   </section>
 
@@ -710,38 +665,32 @@ pages.push({
 });
 
 // ---- solutions
-const SOL = [
-  { t: 'Businesses', img: 'assets/photos/office-setup.jpg', alt: 'Technicians setting up computers in a new office', p: 'Offices, SMEs and contractors need the basics done properly: a network that does not drop, computers that are backed up, cameras on the stock, and a number to call.', pts: ['Office network & Wi-Fi', 'Computers & printers', 'Backups', 'CCTV', 'Managed support', 'Website'] },
-  { t: 'Schools', img: 'assets/photos/school.jpg', alt: 'Pupils at computers in a classroom', p: 'Computer rooms that survive a term, Wi-Fi that reaches the staff room, filtering appropriate for pupils, and training for the teachers who run it.', pts: ['Computer labs', 'Campus Wi-Fi', 'Content filtering', 'CCTV', 'Teacher training'] },
-  { t: 'NGOs', ico: '\u{1F91D}', p: 'Field offices with donors to report to. Reliable connectivity for reporting, secure storage for beneficiary data, and support that understands a grant cycle.', pts: ['Connectivity', 'Secure data', 'Laptops & support', 'Starlink for field sites'] },
-  { t: 'Government offices', ico: '\u{1F3DB}\uFE0F', p: 'Departmental networks, e-services access for the public, printers that print, and maintenance contracts with clear terms.', pts: ['Office networks', 'e-Services', 'Maintenance contracts', 'CCTV'] },
-  { t: 'Mining & industrial', img: 'assets/photos/mining-office.jpg', alt: 'A site office overlooking red earth', p: 'Site offices and camps: dust, heat, unreliable power and no fibre. Rugged workstations, UPS, Starlink links, and cameras on the gate and the yard.', pts: ['Site office IT', 'Starlink & links', 'UPS & power', 'CCTV & access', 'Camp Wi-Fi'] },
-  { t: 'Retail shops', img: 'assets/photos/shop-consult.jpg', alt: 'A consultant with a shop owner in a grocery shop', p: 'Cameras on the till and the stockroom, a point-of-sale that works, Wi-Fi for mobile money, and someone to call when it stops.', pts: ['CCTV', 'Point of sale', 'Wi-Fi', 'Support'] },
-  { t: 'Homes', img: 'assets/photos/home-internet.jpg', alt: 'A technician mounting a dish on a house', p: 'Internet that reaches every room, cameras you can check from work, and a home network set up once and properly.', pts: ['Starlink & internet', 'Home Wi-Fi', 'Cameras', 'Computer repair'] },
-  { t: 'Communities', img: 'assets/photos/training.jpg', alt: 'Young people learning at computers', p: 'Free basic IT training for youth, digital literacy for adults, and the Solwezi Connect marketplace so skills turn into work.', pts: ['Free youth training', 'Digital literacy', 'Solwezi Connect'] },
-];
 pages.push({
-  file: 'solutions.html',
+  file: 'solutions.html', crumb: 'Solutions',
   title: 'Solutions by Industry | Ginger Tec Solutions, Solwezi',
-  desc: 'Technology for every environment in Solwezi District: office networks, school computer rooms, NGO field connectivity, government e-services, mining site offices, retail CCTV, home internet and community training.',
+  desc: 'Technology for businesses, schools, NGOs, government, mining, retail, homes and communities in Solwezi: the problem, what we put in, and what changes.',
   body: `
   <section class="phero">
     <div class="shell phero__in rv">
       <span class="kicker">Solutions</span>
       <h1>Technology for Every Environment</h1>
-      <p>Different buildings, the same problem: the work stops when the technology does. Here is what we put in place for each.</p>
+      <p>Different buildings, the same problem: the work stops when the technology does. For each, the problem we usually find, what we put in place, and what changes.</p>
       <div class="phero__row">${btnQuote()}${btnWa()}</div>
     </div>
   </section>
   <section class="sec">
     <div class="shell">
-      ${SOL.map((s) => `<article class="sol rv" id="${slug(s.t)}">
-        <div class="sol__art${s.img ? '' : ' sol__art--flat'}">${s.img ? `<img src="${s.img}" alt="${s.alt}" loading="lazy" width="1200" height="900">` : `<span aria-hidden="true">${s.ico}</span>`}</div>
+      ${INDUSTRIES.map((s) => `<article class="sol rv" id="${s.id}">
+        <div class="sol__art${s.image ? '' : ' sol__art--flat'}">${s.image ? `<img src="${s.image}" alt="${esc(s.alt)}" loading="lazy" width="1200" height="900"><span class="sol__illus">Illustrative image</span>` : `<span aria-hidden="true">${s.icon}</span>`}</div>
         <div>
-          <h2>${s.t}</h2>
-          <p>${s.p}</p>
-          <ul>${s.pts.map((x) => `<li>${x}</li>`).join('')}</ul>
-          <a class="btn btn--primary btn--sm" href="contact.html#assessment">Get a free assessment</a>
+          <h2>${s.name}</h2>
+          <p class="sol__head">${s.headline}</p>
+          <dl class="sol__psb">
+            <dt>The problem</dt><dd>${s.problem}</dd>
+            <dt>What we put in</dt><dd><ul>${s.solution.map((x) => `<li>${x}</li>`).join('')}</ul></dd>
+            <dt>What changes</dt><dd><ul class="sol__ben">${s.benefits.map((x) => `<li>${x}</li>`).join('')}</ul></dd>
+          </dl>
+          <a class="btn btn--primary btn--sm" href="contact.html#assessment">${s.cta || 'Request a free assessment'}</a>
         </div>
       </article>`).join('\n      ')}
     </div>
@@ -752,22 +701,22 @@ pages.push({
 
 // ---- projects
 pages.push({
-  file: 'projects.html',
+  file: 'projects.html', crumb: 'Projects',
   title: 'Technology Projects in Solwezi | Ginger Tec Solutions',
-  desc: 'The kinds of technology projects Ginger Tec Solutions delivers in Solwezi District: network installations, CCTV, business IT setups, Wi-Fi, Starlink and computer and server setups.',
+  desc: 'Technology projects in Solwezi District: network installations, CCTV, business IT setups, Wi-Fi, Starlink, and computer and server setups.',
   body: `
   <section class="phero">
     <div class="shell phero__in rv">
       <span class="kicker">Projects</span>
       <h1>Technology Projects</h1>
-      <p>What each kind of job involves, where we do it, and what you are left with. Photographs on this page are illustrative; real project photographs are added as clients give permission.</p>
+      <p>What each kind of job involves: the problem we find, what we put in, and what changes. Images marked illustrative are not photographs of our own work.</p>
       <div class="phero__row">${btnQuote()}${btnWa()}</div>
     </div>
   </section>
   <section class="sec">
     <div class="shell">
-      ${projectCards()}
-      <p class="projs__note rv">Honesty note: we do not show a job we did not do. Until a client agrees to have their site photographed and named, cards describe the type of work only.</p>
+      ${projectCards(PROJECTS, true)}
+      <p class="projs__note rv">Honesty note: we do not show a job we did not do. Until a client agrees to have their site photographed and named, cards describe the type of work only. Real projects, with dates and photographs, replace these as permission is given.</p>
     </div>
   </section>
   ${cta('Have a project like one of these?', 'Send a photo of the site on WhatsApp and we will tell you what it needs and what it costs.')}
@@ -776,16 +725,16 @@ pages.push({
 
 // ---- about
 pages.push({
-  file: 'about.html',
+  file: 'about.html', crumb: 'About',
   title: 'About Ginger Tec Solutions | Zambian Technology Company, Solwezi',
-  desc: 'Ginger Tec Solutions is a Zambian technology and innovation company in Solwezi District, making technology, skills and innovative solutions accessible to individuals, businesses and communities.',
-  jsonld: { '@context': 'https://schema.org', '@type': 'AboutPage', url: BASE + 'about.html', about: { '@id': BASE + '#business' } },
+  desc: 'Ginger Tec Solutions is a Zambian technology and innovation company in Solwezi, making technology and skills accessible to people, businesses and communities.',
+  jsonld: { '@type': 'AboutPage', url: BASE + 'about.html', about: { '@id': BASE + '#business' } },
   body: `
   <section class="phero">
     <div class="shell phero__in rv">
       <span class="kicker">About us</span>
       <h1>Technology. Innovation. Opportunity.</h1>
-      <p>${NAME} is a Zambian technology and innovation company based in Solwezi District. We make technology, skills and innovative solutions more accessible to individuals, businesses and communities, and we have been doing it here for five years.</p>
+      <p>${NAME} is a Zambian technology and innovation company based in Solwezi District. We make technology, skills and innovative solutions more accessible to individuals, businesses and communities${YEARS ? `, and we have been doing it here for ${YEARS} years` : ''}.</p>
       <div class="phero__row">${btnQuote()}<a class="btn btn--onDeep" href="services.html">See our services</a></div>
     </div>
   </section>
@@ -794,9 +743,9 @@ pages.push({
     <div class="shell">
       <div class="feat">
         <div class="rv">
-          <span class="kicker">What we are for</span>
-          <h2 class="h2">The work is the job. The district is the point.</h2>
-          <p class="lede">We install networks, cameras and internet because businesses in Solwezi need them to run. We teach because the district needs people who can run them. Both are the same mission.</p>
+          <span class="kicker">Mission</span>
+          <h2 class="h2">Make technology, skills and innovative solutions accessible.</h2>
+          <p class="lede">To individuals, businesses and communities in Zambia. We install networks, cameras and internet because businesses here need them to run. We teach because the district needs people who can run them. Both are the same mission.</p>
           <ul class="ticks">
             <li>Young people: free basic IT training and pathways into work</li>
             <li>Women: in every role, including the technical ones</li>
@@ -807,6 +756,7 @@ pages.push({
         </div>
         <figure class="feat__art rv">
           <img src="assets/photos/women-tech.jpg" alt="A young Zambian woman crimping an Ethernet cable at a workshop bench" loading="lazy" width="1200" height="900">
+          <figcaption>Illustrative image</figcaption>
         </figure>
       </div>
     </div>
@@ -815,8 +765,9 @@ pages.push({
   <section class="sec sec--deep">
     <div class="shell">
       <div class="sec__head rv">
-        <span class="kicker">Our commitments</span>
-        <h2 class="h2">Three things underneath everything we install</h2>
+        <span class="kicker">Vision</span>
+        <h2 class="h2">A leading Zambian technology ecosystem</h2>
+        <p class="lede">One that creates jobs, develops digital skills, supports businesses and connects communities. The services pay for it; the marketplace and the training are how it grows.</p>
       </div>
       <div class="why stag">
         <div class="why__item"><span class="why__n">01</span><h3>Employment creation</h3><p>Local youth hiring. Women in all roles. Disability inclusion. We hire from Solwezi first.</p></div>
@@ -832,11 +783,12 @@ pages.push({
         <div class="rv">
           <span class="kicker">Who we work with</span>
           <h2 class="h2">The sites we look after</h2>
-          <p class="lede">Mining contractors, SMEs, schools, lodges, shops, NGOs and government institutions across Solwezi District. Different buildings, the same problem: the work stops when the connection does.</p>
+          <p class="lede">Businesses, schools, lodges, shops, NGOs, contractors and institutions across Solwezi District. Different buildings, the same problem: the work stops when the connection does.</p>
           <p style="margin-top:22px"><a class="btn btn--primary" href="solutions.html">Solutions by environment</a></p>
         </div>
         <figure class="feat__art rv">
           <img src="assets/photos/shop-consult.jpg" alt="A consultant showing a shop owner something on a tablet in a Solwezi grocery shop" loading="lazy" width="1200" height="900">
+          <figcaption>Illustrative image</figcaption>
         </figure>
       </div>
     </div>
@@ -849,17 +801,17 @@ pages.push({
 
 // ---- marketplace
 pages.push({
-  file: 'marketplace.html',
+  file: 'marketplace.html', crumb: 'Marketplace',
   title: 'Solwezi Connect Marketplace | Find Services & Work in Solwezi',
-  desc: 'Solwezi Connect is the Ginger Tec digital marketplace for Solwezi: hire a vehicle, find a cleaner or helper, request a delivery, rent a house, find skilled workers, post and find jobs. Free to join.',
+  desc: 'Solwezi Connect, the Ginger Tec marketplace: jobs, cleaning, property, vehicles, delivery, skilled workers, helpers and local businesses. Free to join.',
   body: `
   <section class="phero">
     <div class="shell phero__in rv">
       <span class="kicker">Marketplace</span>
       <h1>Find Services. Find Opportunities. Connect Locally.</h1>
-      <p>A digital marketplace connecting people, businesses and service providers across Solwezi. Built by ${NAME}, live now, and free to join.</p>
+      <p>Solwezi Connect is a digital marketplace connecting people, businesses and service providers across Solwezi. Built by ${NAME}, live now, and free to join.</p>
       <div class="phero__row">
-        <a class="btn btn--primary" href="${APP}">Explore the marketplace</a>
+        <a class="btn btn--primary" href="${APP}">Explore marketplace</a>
         <a class="btn btn--onDeep" href="${APP}/post">Post a job</a>
       </div>
     </div>
@@ -867,10 +819,7 @@ pages.push({
 
   <section class="sec">
     <div class="shell">
-      <div class="sec__head rv">
-        <span class="kicker">How it works</span>
-        <h2 class="h2">Three steps, one phone</h2>
-      </div>
+      <div class="sec__head rv"><span class="kicker">How it works</span><h2 class="h2">Three steps, one phone</h2></div>
       <div class="mk-steps stag">
         <div class="mk-step"><b>01</b><h3>Say what you need</h3><p>Post a job, request help in plain words, or browse what people are offering near you.</p></div>
         <div class="mk-step"><b>02</b><h3>Talk directly</h3><p>Message the person inside the app. Agree the price between you. No middleman takes a cut.</p></div>
@@ -892,6 +841,7 @@ pages.push({
         </div>
         <figure class="feat__art rv">
           <img src="assets/photos/training.jpg" alt="Young Zambian adults learning at computers" loading="lazy" width="1003" height="752">
+          <figcaption>Illustrative image</figcaption>
         </figure>
       </div>
     </div>
@@ -902,10 +852,13 @@ pages.push({
 
 // ---- contact
 pages.push({
-  file: 'contact.html',
+  file: 'contact.html', crumb: 'Contact',
   title: 'Contact Ginger Tec Solutions | Free Quote, Solwezi',
-  desc: 'Contact Ginger Tec Solutions in Solwezi: WhatsApp +260 960 884 708, call +260 571 496 842, or request a free technology assessment for your home, business or organisation.',
-  jsonld: { '@context': 'https://schema.org', '@type': 'ContactPage', url: BASE + 'contact.html', about: { '@id': BASE + '#business' } },
+  desc: 'Contact Ginger Tec Solutions in Solwezi: WhatsApp +260 960 884 708, call +260 571 496 842, or request a free technology assessment.',
+  jsonld: [
+    { '@type': 'ContactPage', url: BASE + 'contact.html', about: { '@id': BASE + '#business' } },
+    { '@type': 'FAQPage', '@id': BASE + 'contact.html#faq', mainEntity: FAQ.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) },
+  ],
   body: `
   <section class="phero">
     <div class="shell phero__in rv">
@@ -926,34 +879,20 @@ pages.push({
     </div>
   </section>
 
-  <section class="sec sec--deep assess" id="assessment">
-    <div class="shell">
-      <div class="assess__grid">
-        <div class="rv">
-          <span class="kicker">Free technology assessment</span>
-          <h2 class="h2">Not Sure What Technology You Need?</h2>
-          <p class="lede">Tell us what you're trying to achieve. We'll help you identify the right technology solution for your home, business or organisation.</p>
-          <ul class="assess__pts">
-            <li>A straight answer, not a sales pitch</li>
-            <li>A clear price before any work starts</li>
-            <li>No travel charges inside Solwezi District</li>
-            <li>Urgent? A site down is a phone call, not a form: ${PHONE}</li>
-          </ul>
-        </div>
-        <div class="formwrap rv">
-          ${assessForm('quote-form')}
-        </div>
-      </div>
-    </div>
-  </section>
+  ${assessSection('quote-form', [
+    'A straight answer, not a sales pitch',
+    'A clear price before any work starts',
+    'No travel charges inside Solwezi District',
+    `Urgent? A site down is a phone call, not a form: ${PHONE}`,
+  ])}
 
   ${faqSection()}
 `,
 });
 
-// ---- privacy
+// ---- legal
 pages.push({
-  file: 'privacy.html',
+  file: 'privacy.html', crumb: 'Privacy Policy',
   title: 'Privacy Policy | Ginger Tec Solutions',
   desc: 'How Ginger Tec Solutions handles the information you share with us through this website, WhatsApp, phone and email.',
   body: `
@@ -961,7 +900,7 @@ pages.push({
   <section class="sec"><div class="shell legal rv">
     <p class="updated">Last updated 15 September 2026</p>
     <h2>Who we are</h2>
-    <p>${NAME}, Solwezi District, North-Western Province, Zambia. Contact: ${EMAIL}, WhatsApp ${WA}.</p>
+    <p>${NAME}, ${SITE.location}. Contact: ${EMAIL}, WhatsApp ${WA}.</p>
     <h2>What we collect</h2>
     <ul>
       <li><strong>What you send us.</strong> When you use a form on this site, WhatsApp us, call or email, we receive what you give us: typically a name, phone number, email address, location and a description of what you need.</li>
@@ -970,7 +909,7 @@ pages.push({
     <h2>Why we use it</h2>
     <p>To reply to you, quote for work, do the work, and keep records of it. We do not sell or rent your details, and we do not send marketing you did not ask for.</p>
     <h2>Forms on this site</h2>
-    <p>Until a form service is connected, submitting a form opens your own email app with the message addressed to us; nothing is stored on this website. If we later connect a form service, submissions pass through that provider to reach our inbox.</p>
+    <p>Until a form service is connected, submitting a form opens your own email app or WhatsApp with the message addressed to us; nothing is stored on this website. If we later connect a form service, submissions pass through that provider to reach our inbox.</p>
     <h2>Solwezi Connect</h2>
     <p>Our marketplace at <a href="${APP}">connect.gingertecsolutions.store</a> is a separate service with its own account system and its own privacy terms, shown there.</p>
     <h2>Your rights</h2>
@@ -980,9 +919,8 @@ pages.push({
   </div></section>`,
 });
 
-// ---- terms
 pages.push({
-  file: 'terms.html',
+  file: 'terms.html', crumb: 'Terms',
   title: 'Terms of Service | Ginger Tec Solutions',
   desc: 'The terms on which Ginger Tec Solutions quotes for and carries out technology work, and the terms of use of this website.',
   body: `
@@ -1016,11 +954,10 @@ pages.push({
   </div></section>`,
 });
 
-// ---- 404
 pages.push({
   file: '404.html',
   title: 'Page not found | Ginger Tec Solutions',
-  desc: 'That page is not here. The rest of the site is.',
+  desc: 'That page is not here. Everything Ginger Tec Solutions does in Solwezi is one tap away.',
   body: `
   <section class="phero"><div class="shell phero__in rv"><span class="kicker">404</span><h1>That page is not here</h1><p>The link may be old, or mistyped. Everything we do is one tap away.</p>
   <div class="phero__row"><a class="btn btn--primary" href="index.html">Home</a><a class="btn btn--onDeep" href="services.html">Services</a>${btnWa()}</div></div></section>`,
@@ -1029,14 +966,13 @@ pages.push({
 // ---------------------------------------------------------------- write
 for (const p of pages) {
   const html = shell(p);
-  fs.writeFileSync(path.join(OUT, p.file), html, 'utf8');
+  fs.writeFileSync(path.join(ROOT, p.file), html, 'utf8');
   console.log(p.file.padEnd(18), Math.round(html.length / 1024) + ' KB');
 }
 
-// sitemap
-const today = '2026-09-15';
-const sm = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
+const today = new Date().toISOString().slice(0, 10);
+const sm = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
   pages.filter((p) => p.file !== '404.html').map((p) => `  <url><loc>${BASE}${p.file === 'index.html' ? '' : p.file}</loc><lastmod>${today}</lastmod></url>`).join('\n') +
-  `\n</urlset>\n`;
-fs.writeFileSync(path.join(OUT, 'sitemap.xml'), sm);
+  '\n</urlset>\n';
+fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), sm);
 console.log('sitemap.xml         ', pages.length - 1, 'urls');

@@ -1,0 +1,83 @@
+{
+  "_readme": "Each entry is a TYPE of job until a real project replaces it. To publish a real project: set illustrative to false, put the real photo in assets/projects/, and fill in date and result truthfully. Never mark a generated image as real.",
+  "projects": [
+    {
+      "title": "Small-business office network",
+      "category": "Network installation",
+      "location": "Solwezi District",
+      "problem": "Desks on a tangle of extension leads and a home router, so the internet drops whenever someone prints.",
+      "solution": "Every desk cabled to a labelled patch panel, one managed switch, business Wi-Fi with a separate guest network, and a drawing left with the owner.",
+      "equipment": "Cat6 structured cabling, 24-port managed switch, business access points",
+      "result": "A network the owner can explain to the next technician.",
+      "date": null,
+      "image": "assets/svc/network.jpg",
+      "alt": "Patch panel and switches in a wall cabinet",
+      "illustrative": true
+    },
+    {
+      "title": "Retail shop camera system",
+      "category": "CCTV installation",
+      "location": "Solwezi District",
+      "problem": "Stock going missing and no way to know when or how.",
+      "solution": "Cameras covering the till, the door and the stockroom, thirty days of recording, and the owner watching from their phone at home.",
+      "equipment": "IP cameras, NVR with 30-day storage, phone app",
+      "result": "The owner sees the shop from anywhere.",
+      "date": null,
+      "image": "assets/svc/cctv.jpg",
+      "alt": "Security camera on a building exterior",
+      "illustrative": true
+    },
+    {
+      "title": "New office, from boxes to working desks",
+      "category": "Business IT setup",
+      "location": "Solwezi District",
+      "problem": "New premises, new computers still in boxes, and staff starting Monday.",
+      "solution": "Computers unboxed, set up and secured, a shared printer, a router configured properly, and a backup that runs without anyone remembering to.",
+      "equipment": "Workstations, network printer, business router, backup drive",
+      "result": "Staff sat down and worked on day one.",
+      "date": null,
+      "image": "assets/photos/office-setup.jpg",
+      "alt": "Two technicians setting up computers and a router in a freshly painted office",
+      "illustrative": true
+    },
+    {
+      "title": "School computer room and staff Wi-Fi",
+      "category": "Wi-Fi installation",
+      "location": "Solwezi District",
+      "problem": "A donated computer room with no network, and teachers sharing one phone hotspot.",
+      "solution": "Coverage across classrooms and the staff room, filtering appropriate for pupils, and a computer room that the teacher can reset in a minute.",
+      "equipment": "Access points, managed switch, content filter, lab imaging",
+      "result": "Lessons run without the teacher becoming the IT department.",
+      "date": null,
+      "image": "assets/photos/school.jpg",
+      "alt": "Pupils in uniform at computers in a classroom with an access point on the wall",
+      "illustrative": true
+    },
+    {
+      "title": "Connectivity for a remote site",
+      "category": "Starlink installation",
+      "location": "North-Western Province",
+      "problem": "No fibre, weak mobile signal, and a business that needs to send invoices and take bookings.",
+      "solution": "A dish on a proper mount, clean power, and Wi-Fi that reaches the rooms.",
+      "equipment": "Starlink kit, roof mount, UPS, outdoor access points",
+      "result": "Reliable internet where there was none.",
+      "date": null,
+      "image": "assets/svc/starlink.jpg",
+      "alt": "Satellite dish mounted on a roof",
+      "illustrative": true
+    },
+    {
+      "title": "Site office for an industrial contractor",
+      "category": "Computer & server setup",
+      "location": "Solwezi District",
+      "problem": "Dusty, hot and off the main road, with power cuts that corrupt files.",
+      "solution": "Workstations with clean power, shared files that survive a power cut, and a support line that answers.",
+      "equipment": "Workstations, UPS units, shared storage, remote support",
+      "result": "Paperwork done on site, not driven to town.",
+      "date": null,
+      "image": "assets/photos/mining-office.jpg",
+      "alt": "An administrator in a safety vest at a two-screen workstation in a site office",
+      "illustrative": true
+    }
+  ]
+}

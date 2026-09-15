@@ -1,13 +1,32 @@
-# Rebuilding the pages
+# Updating the site
 
-Every `.html` file in the site root is generated from `tools/build-site.js`,
-which holds the shared header, footer, metadata and the copy for each page.
-Edit the script, then run:
+Every `.html` file in the site root is generated. Do not edit them by hand;
+the next build overwrites them. Edit the content, then rebuild:
 
     node tools/build-site.js
 
-from the site folder. It rewrites the pages and `sitemap.xml`. Nothing else
-is needed: no packages, no build tools, just Node.
+from the site folder. No packages, no build tools, just Node. Then commit
+and push; GitHub Pages republishes within a few minutes.
 
-Styles live in `assets/site.css` and behaviour in `assets/site.js`; those are
-edited directly.
+## Where things live
+
+| Want to change            | Edit                          |
+|---------------------------|-------------------------------|
+| Phone, WhatsApp, email, hours, social links | `content/site.json` |
+| Services and their bullet lists             | `content/services.json` |
+| Projects (and replacing illustrative images with real ones) | `content/projects.json` |
+| Industries on the Solutions page            | `content/industries.json` |
+| Testimonials (real, permitted quotes only)  | `content/testimonials.json` |
+| Page copy, section order, headlines         | `tools/build-site.js` |
+| Photographs                                 | `assets/photos/` (people), `assets/svc/` (equipment) |
+| Styles / behaviour                          | `assets/site.css`, `assets/site.js` |
+
+## Rules baked in
+
+- A project stays labelled **Illustrative image** until `illustrative` is
+  set to `false` in `content/projects.json` and a real photograph is used.
+- Testimonials render as placeholders until `placeholder` is `false`.
+- Social icons appear only for entries in `site.json` that have a URL.
+- Set `claims.yearsOperating` to `null` to remove the years claim everywhere.
+- Forms fall back to the visitor's email app or WhatsApp until a Formspree
+  endpoint is set in `assets/site.js` (`FORM_ENDPOINT`).

@@ -235,6 +235,26 @@
       status.textContent = msg;
     };
 
+    // Send the same details as a WhatsApp message instead. For most people
+    // here this is the natural channel, and it works with no form service.
+    var waBtn = form.querySelector('[data-wa-send]');
+    if (waBtn) {
+      waBtn.addEventListener('click', function () {
+        if (!form.reportValidity()) return;
+        var data = new FormData(form);
+        var lines = ['Hi Ginger Tec, I would like a free quote.'];
+        data.forEach(function (value, key) {
+          if (key === '_gotcha' || !String(value).trim()) return;
+          var el = form.elements[key];
+          var lab = el && el.closest ? el.closest('.field') : null;
+          var label = lab && lab.querySelector('span') ? lab.querySelector('span').textContent.replace('*', '').trim() : key;
+          lines.push(label + ': ' + value);
+        });
+        window.open('https://wa.me/260960884708?text=' + encodeURIComponent(lines.join(String.fromCharCode(10))), '_blank', 'noopener');
+        say('ok', 'WhatsApp is opening with your details filled in. Just press send.');
+      });
+    }
+
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       if (!form.reportValidity()) return;
@@ -270,7 +290,7 @@
       }).then(function (res) {
         if (!res.ok) throw new Error('bad response');
         form.reset();
-        say('ok', 'Thank you. We have your message and will reply shortly. For anything urgent, call +260 571 496 842 or message us on WhatsApp.');
+        say('ok', 'Thank you. Ginger Tec has received your request. We will contact you shortly. For anything urgent, message us on WhatsApp.');
       }).catch(function () {
         say('bad', 'That did not send. Please call +260 571 496 842, message us on WhatsApp, or write to ' + MAIL_TO + '.');
       }).then(function () {

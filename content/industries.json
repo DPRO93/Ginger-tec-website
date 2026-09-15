@@ -1,0 +1,65 @@
+[
+  {
+    "id": "businesses", "name": "Businesses", "tile": "Offices, SMEs, contractors",
+    "image": "assets/photos/office-setup.jpg", "alt": "Technicians setting up computers in a new office",
+    "headline": "The basics done properly, so the business can get on with business.",
+    "problem": "Internet that drops, computers nobody backs up, and no one to call when it stops.",
+    "solution": ["Office network & Wi-Fi", "Computers & printers", "Backups", "CCTV", "Managed support", "Website"],
+    "benefits": ["Staff stop losing hours to IT", "One number to call", "A clear monthly cost"]
+  },
+  {
+    "id": "schools", "name": "Schools", "tile": "Computer rooms, staff networks",
+    "image": "assets/photos/school.jpg", "alt": "Pupils at computers in a Zambian classroom",
+    "headline": "Computer rooms that survive a term.",
+    "problem": "Donated computers with no network, teachers on phone hotspots, pupils on the open internet.",
+    "solution": ["Computer labs", "Campus Wi-Fi", "Content filtering", "CCTV", "Teacher training"],
+    "benefits": ["Lessons run without the teacher becoming IT", "Pupils protected online", "Equipment lasts"]
+  },
+  {
+    "id": "ngos", "name": "NGOs", "tile": "Field offices, reporting, security", "icon": "🤝",
+    "headline": "Connectivity and data you can report on.",
+    "problem": "Field offices with donors to report to, sensitive beneficiary data, and grant cycles that do not wait for the internet.",
+    "solution": ["Connectivity", "Secure data storage", "Laptops & support", "Starlink for field sites"],
+    "benefits": ["Reports go out on time", "Beneficiary data stays private", "Support that understands a grant cycle"]
+  },
+  {
+    "id": "government", "name": "Government", "tile": "Networks, e-services, support", "icon": "🏛️",
+    "headline": "Departmental IT with clear terms.",
+    "problem": "Ageing networks, printers that do not print, and the public needing e-services access.",
+    "solution": ["Office networks", "e-Services access", "Maintenance contracts", "CCTV"],
+    "benefits": ["Written scope and price", "Faster service to the public", "Records that are backed up"]
+  },
+  {
+    "id": "mining-industrial", "name": "Mining & Industrial", "tile": "Site offices, camps, remote links",
+    "image": "assets/photos/mining-office.jpg", "alt": "A site office overlooking red earth and a parked pickup",
+    "headline": "Reliable technology infrastructure for demanding environments.",
+    "problem": "Dust, heat, unreliable power, no fibre, and a site that cannot stop.",
+    "solution": ["Network infrastructure", "CCTV", "Connectivity", "IT support", "Hardware", "Maintenance", "Remote support"],
+    "benefits": ["Equipment specified for the conditions", "Clean power for every workstation", "Cameras on the gate and the yard"],
+    "cta": "Request a site assessment"
+  },
+  {
+    "id": "retail", "name": "Retail", "tile": "CCTV, tills, Wi-Fi",
+    "image": "assets/photos/shop-consult.jpg", "alt": "A consultant with a shop owner in a grocery shop",
+    "headline": "Eyes on the till, and a till that works.",
+    "problem": "Stock going missing, a point-of-sale that freezes, and mobile money that needs Wi-Fi.",
+    "solution": ["CCTV", "Point of sale", "Wi-Fi", "Support"],
+    "benefits": ["See the shop from your phone", "Sales that do not stop", "Someone to call"]
+  },
+  {
+    "id": "homes", "name": "Homes", "tile": "Internet, Wi-Fi, cameras",
+    "image": "assets/photos/home-internet.jpg", "alt": "A technician mounting a dish on a house while the homeowner watches",
+    "headline": "Internet in every room, and cameras you can check from work.",
+    "problem": "Wi-Fi that dies in the back bedroom, and no idea who is at the gate.",
+    "solution": ["Starlink & internet", "Home Wi-Fi", "Cameras", "Computer repair"],
+    "benefits": ["Set up once, properly", "The family online at the same time", "Peace of mind"]
+  },
+  {
+    "id": "communities", "name": "Communities", "tile": "Training, digital inclusion",
+    "image": "assets/photos/training.jpg", "alt": "Young people learning at computers",
+    "headline": "Skills first, then work.",
+    "problem": "Young people with phones but no computer skills, and no local route into technology work.",
+    "solution": ["Free youth training", "Digital literacy", "Solwezi Connect"],
+    "benefits": ["Job-ready basics, free", "Courses that show on a profile", "A marketplace to find work"]
+  }
+]
