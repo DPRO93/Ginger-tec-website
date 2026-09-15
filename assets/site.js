@@ -13,7 +13,7 @@
   var burger = document.querySelector('.burger');
 
   if (hdr) {
-    var darkTop = document.querySelector('.hero, .phero');   // the dark section at the top
+    var darkTop = document.querySelector('.hero, .hero2, .phero');   // the dark section at the top
     var stuckState = null;                       // delta-gated: only write on change
     var darkState = null;
 
@@ -216,16 +216,18 @@
   /* Where a visitor's message actually goes.
      Put your Formspree endpoint in FORM_ENDPOINT and messages land in the inbox.
      Until then the visitor's own email app opens, addressed to the business,
-     so no enquiry is ever quietly lost. */
+     so no enquiry is ever quietly lost. Every form with class "enquiry" is
+     handled the same way, whatever fields it has. */
   var FORM_ENDPOINT = 'https://formspree.io/f/REPLACE_WITH_YOUR_FORM_ID';
   var MAIL_TO = 'dannykamalondo@gmail.com';
+  var endpointReady = FORM_ENDPOINT.indexOf('REPLACE_WITH_YOUR_FORM_ID') === -1;
 
-  var form = document.querySelector('#quote-form');
-
-  if (form) {
+  var forms = document.querySelectorAll('form.enquiry, #quote-form');
+  Array.prototype.forEach.call(forms, function (form) {
     var status = form.querySelector('.fstatus');
     var submitBtn = form.querySelector('[type="submit"]');
-    var endpointReady = FORM_ENDPOINT.indexOf('REPLACE_WITH_YOUR_FORM_ID') === -1;
+    var submitLabel = submitBtn ? submitBtn.textContent : '';
+    var subject = form.getAttribute('data-subject') || 'Website enquiry';
 
     var say = function (kind, msg) {
       if (!status) return;
@@ -240,18 +242,20 @@
       var data = new FormData(form);
 
       if (!endpointReady) {
-        // the honest fallback: hand the message to the visitor's own email app
-        var lines = [
-          'Name: ' + (data.get('name') || ''),
-          'Email: ' + (data.get('email') || ''),
-          'Phone: ' + (data.get('phone') || ''),
-          'Service: ' + (data.get('service') || ''),
-          '',
-          (data.get('message') || '')
-        ].join('\n');
+        // the honest fallback: hand the message to the visitor's own email app,
+        // with every field the visitor filled in, labelled
+        var lines = [];
+        data.forEach(function (value, key) {
+          if (key === '_gotcha' || !String(value).trim()) return;
+          var label = key;
+          var el = form.elements[key];
+          var lab = el && el.closest ? el.closest('.field') : null;
+          if (lab && lab.querySelector('span')) label = lab.querySelector('span').textContent.replace('*', '').trim();
+          lines.push(label + ': ' + value);
+        });
         window.location.href = 'mailto:' + MAIL_TO
-          + '?subject=' + encodeURIComponent('Website enquiry from ' + (data.get('name') || 'a visitor'))
-          + '&body=' + encodeURIComponent(lines);
+          + '?subject=' + encodeURIComponent(subject + ' from ' + (data.get('name') || 'a visitor'))
+          + '&body=' + encodeURIComponent(lines.join('\n'));
         say('ok', 'Your email app is opening with the message ready to send. If nothing opens, write to '
           + MAIL_TO + ' or message us on WhatsApp.');
         return;
@@ -270,10 +274,10 @@
       }).catch(function () {
         say('bad', 'That did not send. Please call +260 571 496 842, message us on WhatsApp, or write to ' + MAIL_TO + '.');
       }).then(function () {
-        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Send message'; }
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = submitLabel; }
       });
     });
-  }
+  });
 
   /* ------------------------------ reduced motion, honoured in both directions */
   function pinToFinalStates() {
