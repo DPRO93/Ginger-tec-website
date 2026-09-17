@@ -30,3 +30,11 @@ and push; GitHub Pages republishes within a few minutes.
 - Set `claims.yearsOperating` to `null` to remove the years claim everywhere.
 - Forms fall back to the visitor's email app or WhatsApp until a Formspree
   endpoint is set in `assets/site.js` (`FORM_ENDPOINT`).
+
+## Images
+
+Photos are JPEG with a WebP twin beside them (`assets/photos/x.jpg` + `x.webp`).
+`node tools/webp.js` makes or refreshes the twins (it borrows `sharp` from the
+`solwezi-connect` folder next door if this folder has no `node_modules`), and
+`build-site.js` wraps any `<img>` whose JPEG has a twin in a `<picture>` with a
+WebP source. Add a photo → run `webp.js` → run `build-site.js`.

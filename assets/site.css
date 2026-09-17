@@ -1321,3 +1321,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 /* real installation photos under a service image */
 .svc__gal{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
 .svc__gal img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:12px;display:block;border:1px solid var(--line)}
+
+/* <picture> wrappers (tools/build-site.js) must not affect layout */
+picture{display:contents}

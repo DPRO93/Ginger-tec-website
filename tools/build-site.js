@@ -490,7 +490,7 @@ pages.push({
   desc: 'Zambian IT company in Solwezi: IT support, networking, Wi-Fi, CCTV, Starlink, software, websites and IT training. Technology that works, built for Zambia.',
   ogTitle: 'Ginger Tec Solutions | Technology That Works. Built for Zambia.',
   ogImage: 'assets/og-hero.jpg',
-  extraHead: '<link rel="preload" as="image" href="assets/photos/hero-technician.jpg" imagesrcset="assets/photos/hero-technician-m.jpg 900w, assets/photos/hero-technician.jpg 1344w" imagesizes="100vw">\n',
+  extraHead: '<link rel="preload" as="image" href="assets/photos/hero-technician.webp" imagesrcset="assets/photos/hero-technician-m.webp 900w, assets/photos/hero-technician.webp 1344w" imagesizes="100vw" type="image/webp">\n',
   jsonld: [business, { '@type': 'WebSite', '@id': BASE + '#website', url: BASE, name: NAME, publisher: { '@id': BASE + '#business' }, inLanguage: 'en' }],
   body: `
   <!-- HERO -->
@@ -966,9 +966,28 @@ pages.push({
   <div class="phero__row"><a class="btn btn--primary" href="index.html">Home</a><a class="btn btn--onDeep" href="services.html">Services</a>${btnWa()}</div></div></section>`,
 });
 
+// ---------------------------------------------------------------- images
+// Every <img> pointing at a JPEG that has a .webp twin on disk becomes a
+// <picture> with a WebP source. Browsers that cannot show WebP (none in
+// practice now) still get the JPEG. The twins are made by tools/webp.js.
+const hasWebp = (src) => fs.existsSync(path.join(ROOT, src.replace(/\.jpe?g$/i, '.webp')));
+const toWebp = (src) => src.replace(/\.jpe?g$/i, '.webp');
+function pictures(html) {
+  return html.replace(/<img\b([^>]*?)\ssrc="(assets\/[^"]+\.jpe?g)"([^>]*)>/g, (m, before, src, after) => {
+    if (!hasWebp(src)) return m;
+    const srcsetMatch = (before + after).match(/\ssrcset="([^"]+)"/);
+    const sizesMatch = (before + after).match(/\ssizes="([^"]+)"/);
+    const srcset = srcsetMatch
+      ? srcsetMatch[1].split(',').map((part) => { const [u, w] = part.trim().split(/\s+/); return hasWebp(u) ? `${toWebp(u)} ${w}` : null; }).filter(Boolean).join(', ')
+      : toWebp(src);
+    if (!srcset) return m;
+    return `<picture><source type="image/webp" srcset="${srcset}"${sizesMatch ? ` sizes="${sizesMatch[1]}"` : ''}>${m}</picture>`;
+  });
+}
+
 // ---------------------------------------------------------------- write
 for (const p of pages) {
-  const html = shell(p);
+  const html = pictures(shell(p));
   fs.writeFileSync(path.join(ROOT, p.file), html, 'utf8');
   console.log(p.file.padEnd(18), Math.round(html.length / 1024) + ' KB');
 }
