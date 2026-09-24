@@ -1320,7 +1320,13 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 
 /* real installation photos under a service image */
 .svc__gal{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-.svc__gal img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:12px;display:block;border:1px solid var(--line)}
+.svc__gal img{width:100%;height:auto;aspect-ratio:4/3;object-fit:cover;border-radius:12px;display:block;border:1px solid var(--line)}
 
-/* <picture> wrappers (tools/build-site.js) must not affect layout */
+/* <picture> wrappers (tools/build-site.js) must not affect layout.
+   display:contents promotes the picture's children into the parent's grid or
+   flex layout, which is what we want for the <img> and emphatically not what
+   we want for <source>: Chrome gives source display:block, so without this it
+   becomes a real grid item and steals a cell. That put the industry tiles and
+   the service galleries into 2x2 grids with empty holes. */
 picture{display:contents}
+picture>source{display:none}

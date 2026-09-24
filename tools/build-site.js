@@ -7,6 +7,57 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..');
 const read = (f) => JSON.parse(fs.readFileSync(path.join(ROOT, 'content', f), 'utf8'));
 
+// ------------------------------------------------------------ image sizes
+// JPEG/PNG/WebP intrinsic size, straight from the file header. Emitting the
+// real numbers means the browser reserves exactly the right box, so nothing
+// shifts as photos load, and a replaced photo can never leave a stale ratio
+// behind in the markup.
+const sizeCache = new Map();
+function imageSize(src) {
+  if (sizeCache.has(src)) return sizeCache.get(src);
+  const file = path.join(ROOT, src);
+  let out = null;
+  try {
+    const b = fs.readFileSync(file);
+    if (b[0] === 0xff && b[1] === 0xd8) {                      // JPEG
+      let i = 2;
+      while (i < b.length) {
+        if (b[i] !== 0xff) { i++; continue; }
+        const m = b[i + 1];
+        if (m >= 0xc0 && m <= 0xcf && m !== 0xc4 && m !== 0xc8 && m !== 0xcc) {
+          out = { w: b.readUInt16BE(i + 7), h: b.readUInt16BE(i + 5) };
+          break;
+        }
+        i += 2 + b.readUInt16BE(i + 2);
+      }
+    } else if (b.slice(1, 4).toString() === 'PNG') {            // PNG
+      out = { w: b.readUInt32BE(16), h: b.readUInt32BE(20) };
+    } else if (b.slice(8, 12).toString() === 'WEBP') {          // WebP (VP8X/VP8L/VP8)
+      const fmt = b.slice(12, 16).toString();
+      if (fmt === 'VP8X') out = { w: (b.readUIntLE(24, 3) & 0xffffff) + 1, h: (b.readUIntLE(27, 3) & 0xffffff) + 1 };
+    }
+  } catch { /* missing file: fall through to null and leave the markup alone */ }
+  sizeCache.set(src, out);
+  return out;
+}
+
+/** width/height attributes for an image, from the file itself. */
+function dim(src) {
+  const s = imageSize(src);
+  return s ? ` width="${s.w}" height="${s.h}"` : '';
+}
+
+/** The image's own aspect ratio, clamped so one odd photo cannot make a row
+ *  absurdly tall or wide. Used where the frame should fit the photo rather
+ *  than crop it. */
+function ratio(src, min = 4 / 3, max = 16 / 9) {
+  const s = imageSize(src);
+  if (!s) return null;
+  const r = Math.min(Math.max(s.w / s.h, min), max);
+  return r.toFixed(4);
+}
+
+
 const SITE = read('site.json');
 const SERVICES = read('services.json');
 const PROJECTS = read('projects.json').projects;
@@ -314,7 +365,7 @@ const trustStrip = () => `
 const serviceCards = () => `
       <div class="scards stag">
         ${SERVICES.filter((s) => s.homeCard !== false).map((s) => `<article class="scard">
-          <div class="scard__art"><img src="${s.image}" alt="${esc(s.alt)}" loading="lazy" width="1200" height="750"></div>
+          <div class="scard__art"><img src="${s.image}" alt="${esc(s.alt)}" loading="lazy"${dim(s.image)}></div>
           <div class="scard__body">
             <h3>${s.name}</h3>
             <ul>${s.items.map((p) => `<li>${p}</li>`).join('')}</ul>
@@ -331,7 +382,7 @@ const whyBlocks = () => `
 const industriesGrid = () => `
       <div class="inds stag">
         ${INDUSTRIES.map((d) => d.image
-          ? `<a class="ind" href="solutions.html#${d.id}"><img src="${d.image}" alt="${esc(d.alt)}" loading="lazy" width="1200" height="900"><span class="ind__label">${d.name}<small>${d.tile}</small></span></a>`
+          ? `<a class="ind" href="solutions.html#${d.id}"><img src="${d.image}" alt="${esc(d.alt)}" loading="lazy"${dim(d.image)}><span class="ind__label">${d.name}<small>${d.tile}</small></span></a>`
           : `<a class="ind ind--flat" href="solutions.html#${d.id}"><span class="ind__ico" aria-hidden="true">${d.icon}</span><span class="ind__label">${d.name}<small>${d.tile}</small></span></a>`).join('\n        ')}
       </div>`;
 
@@ -339,7 +390,7 @@ const projectCards = (list = PROJECTS, full = false) => `
       <div class="projs stag">
         ${list.map((p) => `<article class="proj">
           <figure>
-            <img src="${p.image}" alt="${esc(p.alt)}" loading="lazy" width="1200" height="800">
+            <img src="${p.image}" alt="${esc(p.alt)}" loading="lazy"${dim(p.image)}>
             ${p.illustrative ? '<figcaption class="proj__illus">Illustrative image</figcaption>' : ''}
           </figure>
           <div class="proj__body">
@@ -649,8 +700,8 @@ pages.push({
           </div>
         </div>
         <div>
-          <div class="svc__art"><img class="svc__img" src="${s.image}" alt="${esc(s.alt)}" loading="lazy" width="1200" height="896"><span class="svc__cap">${s.short}</span></div>
-          ${s.gallery ? `<div class="svc__gal">${s.gallery.map((g) => `<img src="${g.image}" alt="${esc(g.alt)}" loading="lazy" width="600" height="450">`).join('')}</div>` : ''}
+          <div class="svc__art"${ratio(s.image) ? ` style="aspect-ratio:${ratio(s.image)}"` : ''}><img class="svc__img" src="${s.image}" alt="${esc(s.alt)}" loading="lazy"${dim(s.image)}><span class="svc__cap">${s.short}</span></div>
+          ${s.gallery ? `<div class="svc__gal">${s.gallery.map((g) => `<img src="${g.image}" alt="${esc(g.alt)}" loading="lazy"${dim(g.image)}>`).join('')}</div>` : ''}
         </div>
       </article>`).join('\n      ')}
     </div>
@@ -684,7 +735,7 @@ pages.push({
   <section class="sec">
     <div class="shell">
       ${INDUSTRIES.map((s) => `<article class="sol rv" id="${s.id}">
-        <div class="sol__art${s.image ? '' : ' sol__art--flat'}">${s.image ? `<img src="${s.image}" alt="${esc(s.alt)}" loading="lazy" width="1200" height="900"><span class="sol__illus">Illustrative image</span>` : `<span aria-hidden="true">${s.icon}</span>`}</div>
+        <div class="sol__art${s.image ? '' : ' sol__art--flat'}">${s.image ? `<img src="${s.image}" alt="${esc(s.alt)}" loading="lazy"${dim(s.image)}><span class="sol__illus">Illustrative image</span>` : `<span aria-hidden="true">${s.icon}</span>`}</div>
         <div>
           <h2>${s.name}</h2>
           <p class="sol__head">${s.headline}</p>
