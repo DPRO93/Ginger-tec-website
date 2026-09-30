@@ -237,7 +237,7 @@ function shell({ file, title, desc, ogTitle, ogImage = 'assets/og.jpg', ogAlt, j
 ${extraHead}<link rel="stylesheet" href="assets/site.css">
 ${graph.length ? `<script type="application/ld+json">\n${JSON.stringify({ '@context': 'https://schema.org', '@graph': graph }, null, 1)}\n</script>` : ''}
 </head>
-<body>
+<body data-wa="${SITE.whatsappUrl}">
 
 <a class="skip" href="#main">Skip to content</a>
 <div class="env" aria-hidden="true"></div>
@@ -908,7 +908,7 @@ pages.push({
 pages.push({
   file: 'contact.html', crumb: 'Contact',
   title: 'Contact Ginger Tec Solutions | Free Quote, Solwezi',
-  desc: 'Contact Ginger Tec Solutions in Solwezi: WhatsApp +260 960 884 708, call +260 571 496 842, or request a free technology assessment.',
+  desc: `Contact Ginger Tec Solutions in Solwezi: WhatsApp ${SITE.whatsapp}, call ${SITE.phone}, or request a free technology assessment.`,
   jsonld: [
     { '@type': 'ContactPage', url: BASE + 'contact.html', about: { '@id': BASE + '#business' } },
     { '@type': 'FAQPage', '@id': BASE + 'contact.html#faq', mainEntity: FAQ.map(([q, a]) => ({ '@type': 'Question', name: q, acceptedAnswer: { '@type': 'Answer', text: a } })) },

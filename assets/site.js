@@ -250,7 +250,8 @@
           var label = lab && lab.querySelector('span') ? lab.querySelector('span').textContent.replace('*', '').trim() : key;
           lines.push(label + ': ' + value);
         });
-        window.open('https://wa.me/260960884708?text=' + encodeURIComponent(lines.join(String.fromCharCode(10))), '_blank', 'noopener');
+        var wa = document.body.getAttribute('data-wa') || 'https://gingertecsolutions.store/contact.html';
+        window.open(wa + '?text=' + encodeURIComponent(lines.join(String.fromCharCode(10))), '_blank', 'noopener');
         say('ok', 'WhatsApp is opening with your details filled in. Just press send.');
       });
     }
